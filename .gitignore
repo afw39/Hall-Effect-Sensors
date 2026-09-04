@@ -14,4 +14,5 @@ __pycache__/
 *.pyc
 
 #others
-*.vscode
+.vscode/
+.vscode
