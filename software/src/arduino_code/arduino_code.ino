@@ -8,11 +8,9 @@ String dataLabel2 = "voltage S2";
 String dataLabel3 = "voltage S3";
 bool label = true;
 
-int data1, data2, data3, curr1, curr2, curr3;
+int data1, data2, data3;
 
-float percent = 0.05;
-int threshold = 1024*percent; // within x% either side
-int freq = 1000; //collect a reading every x milliseconds
+int freq = 1000; //collect a reading every 1 second (in ms)
 
 
 void setup() {
@@ -39,16 +37,13 @@ void loop() {
   data2 = analogRead(sensor2)
   data3 = analogRead(sensor3)
 
-  if((curr1 >=data1+threshold || curr1 <=data1-threshold) || (curr2>=data2+threshold || curr2<=data2+threshold)|| (curr3>=data3+threshold || curr3<=data3+threshold)){
-    // data in CSV format
-    Serial.print(data1);
-    Serial.print(",");
-    Serial.print(data2);
-    Serial.print(",");
-    Serial.print(data3);
+   // data in CSV format
+   Serial.print(data1);
+   Serial.print(",");
+   Serial.print(data2);
+   Serial.print(",");
+   Serial.print(data3);
+   delay(freq)
 
-    curr1 = data1;
-    curr2 = data2;
-    curr3 = data3;
-  }
+
 }

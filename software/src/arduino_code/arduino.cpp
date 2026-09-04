@@ -15,4 +15,4 @@ void loop() {
 
 
 // this will hopefully be sufficient for one sensor at least and might have to ammend it for multiple, cant really run it right now cause
-// its not actaully hooked up to an arduino so we will see how this goes. 
+// its not actaully hooked up to an arduino so we will see how this goes.
