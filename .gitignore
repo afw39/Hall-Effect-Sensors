@@ -1,0 +1,18 @@
+# virtual environment
+venv/
+.venv/
+.venv
+
+#python packaging
+*.egg-info/
+dist/
+build/*
+build/
+
+# python cache
+__pycache__/
+*.pyc
+
+#others
+.vscode/
+.vscode
