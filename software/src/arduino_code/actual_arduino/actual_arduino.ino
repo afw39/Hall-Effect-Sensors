@@ -4,8 +4,8 @@ const int sensor2 = A1;
 
 int data1, data2;
 
-String dataLabel1 = "ADC_1";
-String dataLabel2 = "ADC_2";
+String dataLabel1 = "sensor1";
+String dataLabel2 = "sensor2";
 
 void setup() {
   Serial.begin(9600);
@@ -39,3 +39,11 @@ void loop(){
 
 // should work for as many sensors as i need, can print them all in a line separated by commas, read them into python
 // as a csv and then do it from there
+// will produce something like this
+// time_ms      sensor1     sensor2
+//       0       680          703    
+//     500       702          689
+//    1000       695          688
+//    1500       687          694
+//    2000       793          707
+ 

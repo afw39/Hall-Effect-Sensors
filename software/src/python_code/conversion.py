@@ -9,31 +9,40 @@
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import serial
 import csv
+from pathlib import Path
 
-ser = serial.Serial('COM3', 9600)
+#ser = serial.Serial('COM3', 9600)
 
 # puts data into csv file called 'arduino-data.csv'
-with open('arduino-data.csv', 'w', newline = '') as csvfile:
-    writer = csv.writer(csvfile)
-    #saves the headings
-    header = ser.readline().decode().strip()
-    #splits them by commas into cells
-    writer.writerow(header.split(","))
+def open(ser):
+    with open('arduino-data.csv', 'w', newline = '') as csvfile:
+        writer = csv.writer(csvfile)
+        #saves the headings
+        header = ser.readline().decode().strip()
+        #splits them by commas into cells
+        writer.writerow(header.split(","))
 
-    # read the rest of the data and split them by commas
-    while True:
-        line = ser.readline().decode().strip()
-        if line:
-            values = line.split(',')
-            writer.writerow(values)
-            print(values)
-# closes the file
-ser.close()
+        # read the rest of the data and split them by commas
+        while True:
+            line = ser.readline().decode().strip()
+            if line:
+                values = line.split(',')
+                writer.writerow(values)
+                print(values)
+    # closes the file
+    ser.close()
+
+#open(ser)
 
 # saving the csv as a dataframe cause i know how to modify dataframes better than csvs
-data = pd.read_excel("arduino-data.xlsx")
+
+script_dir = Path(__file__).parent
+excel_file = script_dir / "arduino-data.xlsx"
+
+data = pd.read_excel(excel_file)
 data.to_csv("arduino-data.csv", index = False)
 
 # okay i think that this is actually going to read in the data!
@@ -49,7 +58,7 @@ data.to_csv("arduino-data.csv", index = False)
 # going to be 5.0V, can measure it with a multimeter at a later time, for now will just use it as a constant
 
 VCC = 5.0 # VCC of arduino
-NUMBER = 2 # number of sensors
+NUMBER = 4 # number of sensors
 KNOWN_FIELD_1 = 0.001 # in mT
 
 
@@ -81,8 +90,15 @@ class Convert:
         '''
         docstring
         '''
+
         # need to find a way to calculate the null voltage - will just read it off sensor, for now using VCC /2
         self.null = self.vcc / 2
+
+        # maybe a way to do it in the future is do it physically, using a multimeter
+        # store the values in here:
+        #    self.null = np.empty(self.number)
+        # then can use them like this when subtracting them
+        #    self.data[self.data.columns[i+1] - self.null[i]]
 
     def calibrate(self, known_field_1: float) -> np.array:
         '''
@@ -133,4 +149,43 @@ if __name__ == '__main__':
     main(data, VCC, NUMBER, KNOWN_FIELD_1)
 
 
-# okay this works! yay. now will upload this all and tidy up
+# okay this code completely works using the fake csv, will have to hope that it works from extracting the data from the Arduino
+# this is the output from `.head(5)`
+#      time_ms      sensor1     sensor2    field_strength_sensor_1     field_strength_sensor_2
+# 0          0     3.856305    3.787879                   0.002727                    0.002723
+# 1        500     4.120235    3.968719                   0.002913                    0.002853
+# 2       1000     3.895406    3.929619                   0.002754                    0.002825
+# 3       1500     3.919844    3.841642                   0.002772                    0.002762
+# 4       2000     3.807429    3.875855                   0.002692                    0.002786
+# 
+# so i guess i would want to just send the field strengths from each sensor to the software/DAQ and plot them against time. 
+# if I had a constant field, then could just take an average reading over all the sensors and plot that against time
+#
+# i should also add like an actual calculation of the null voltage ( maybe could do something like an initial estimate of the
+# null voltage and use that to recalculate that and use the new value going forward )
+# i would need to do like a calculation where the software recognises when theres no field - but I can't actually calculate the 
+# field without knowing what the null voltage is. 
+# 
+# 
+# going to add some quick plot code to plot the field strength recorded by each sensor against time, will plot both these 
+# lines on the same axis
+
+def plot(data: pd.DataFrame, number: int) -> None:
+    '''
+    docstring
+    '''
+    colors = ('orange', 'blue', 'green', 'purple', 'red', 'pink')
+    fig = plt.figure(figsize = (13, 6))
+    ax = fig.add_subplot(1,1,1)
+
+    for i in range(number):
+        ax.plot(data[data.columns[0]], data[data.columns[number+i+1]], color = colors[i], label = f'sensor {i+1} fields')
+
+    ax.set_ylabel('Field strength recorded by sensors / T')
+    ax.set_xlabel('Time since data collection began / ms')
+    ax.set_title('Field strength vs time ')
+    ax.legend(loc = 3, prop = {'size': 9})
+
+    plt.show()
+
+plot(data, NUMBER)
