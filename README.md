@@ -21,3 +21,27 @@ This project aims to deliver a laboratory-ready magnetic field mapping system ba
 * CAD models and STL files for all manufactured components
 * sensor calibration procedures and uncertainty assessment documentation
 * magnetic field mapping datasets for multiple Helmholtz coil configurations
+
+----------------------------------------------------------------------------------------------------------------
+
+# Hall Effect Sensor Project
+
+This repository contains all the information about the hall effect sensor array. The first stage of the project is starting with a basic version of the project. I will start with a few hall effect sensors and construct a working circuit with working software. The end goal of this project is to create a magnetic field map using hall effect sensors and integrate that into MatchID software to get a live feed of the magnetic field strength distributions across a sample undergoing deformation. 
+
+## Repository structure
+```
+.gitignore
+LICENSE
+README.md
+hardware /
+  |---- CAD_design.md      # explanation of the CAD design
+  |---- README.md          # explanation of the experimental setup/design
+  |---- circuit_design.md  # circuit design information
+software /
+  |---- README.md
+  |---- src/
+  |     |---- arduino_code/           # contains all modules of arduino code
+  |           |---- arduino_code.ino  # code uses to record data from circuit
+  |     |---- python_code/            # contains all modules of python code
+  |           |---- conversion.py     # converts the data from the arduino into field strengths
+```
