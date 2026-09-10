@@ -28,6 +28,8 @@ This project aims to deliver a laboratory-ready magnetic field mapping system ba
 
 This repository contains all the information about the hall effect sensor array. The first stage of the project is starting with a basic version of the project. I will start with a few hall effect sensors and construct a working circuit with working software. The end goal of this project is to create a magnetic field map using hall effect sensors and integrate that into MatchID software to get a live feed of the magnetic field strength distributions across a sample undergoing deformation. 
 
+porter dam
+
 ## Repository structure
 ```
 .gitignore
