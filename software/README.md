@@ -41,15 +41,7 @@ The only class is the `Convert` class, this contains all the methods for data co
 
 The final method which is outside of the `Convert` class:
 - `plot(data: pd.DataFrame, number: int) -> None` = produces a plot of magnetic field strength against time in ms for however many sensors there is data for.
-This will not be the final visualisation method as the data will be plotted as a live feed into the matchID software in the final project but until then, am using this method to see the data. That is why it is not a method within the `Convert` class. 
+This will not be the final visualisation method as the data will be plotted as a live feed into the matchID software in the final project but until then, am using this method to see the data. That is why it is not a method within the `Convert` class.
 
-
-
-
-
-
-
-
-
-
-
+After the data has been through the `Convert` class, the dataframe looks like this (performed with 4 sensors in the circuit):
+<img width="1870" height="162" alt="image" src="https://github.com/user-attachments/assets/540f7c54-473e-4cb4-af4a-fbcc221fb5bf" />
