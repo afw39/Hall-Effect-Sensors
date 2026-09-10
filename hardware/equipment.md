@@ -19,7 +19,7 @@ To start with, will make a smaller experimental setup to ensure that the circuit
 ### Arduino
 * using an Arduino nano for this project - is very small so should work well
 * has a 5 VDC output which is perfect for the SS495A sensors being used
-* has 6 analog output pins so when scaling up the project will need multiple sensors
+* has 8 analog output pins so when scaling up the project will need multiple sensors
 
 ### DAQ
 * the DAQ being used is the spec of NI-9219
