@@ -34,14 +34,14 @@ This repository contains all the information about the hall effect sensor array.
 LICENSE
 README.md
 hardware /
-  |---- CAD_design.md      # explanation of the CAD design
-  |---- README.md          # explanation of the experimental setup/design
-  |---- circuit_design.md  # circuit design information
+|---- CAD_design.md      # explanation of the CAD design
+|---- README.md          # explanation of the experimental setup/design
+|---- circuit_design.md  # circuit design information
 software /
-  |---- README.md
-  |---- src/
-  |     |---- arduino_code/           # contains all modules of arduino code
-  |           |---- arduino_code.ino  # code uses to record data from circuit
-  |     |---- python_code/            # contains all modules of python code
-  |           |---- conversion.py     # converts the data from the arduino into field strengths
+|---- README.md
+|---- src/
+|     |---- arduino_code/           # contains all modules of arduino code
+|           |---- arduino_code.ino  # code uses to record data from circuit
+|     |---- python_code/            # contains all modules of python code
+|           |---- conversion.py     # converts the data from the arduino into field strengths
 ```
