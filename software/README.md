@@ -23,7 +23,7 @@ This is pretty simple software. Uses the serial monitor to print a time stamp an
 <img width="1076" height="706" alt="image" src="https://github.com/user-attachments/assets/8791c006-0acb-45ad-8cb5-29af59010a5b" />
 
 ## Python code
-libraries used: pandas, numpy, matplotlib, serial, csv, pathlib
+libraries used: pandas, numpy, matplotlib, serial, csv, pathlib    
 The python code is where most of the data processing will occur, when it recieves the data from the arduino, it reads it and saves it as a csv. This is then converted into a pandas dataframe for easier use. 
 
 When the data arrives it is a table that will look something like this:
