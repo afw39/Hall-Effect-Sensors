@@ -17,8 +17,11 @@ from pathlib import Path
 #ser = serial.Serial('COM3', 9600)
 
 # puts data into csv file called 'arduino-data.csv'
-def open(ser):
-    with open('arduino-data.csv', 'w', newline = '') as csvfile:
+def open_csv(ser):
+    '''
+    docstring
+    '''
+    with open('arduino-data.csv', 'w', newline = '', encoding = 'utf-8') as csvfile:
         writer = csv.writer(csvfile)
         #saves the headings
         header = ser.readline().decode().strip()
@@ -35,7 +38,7 @@ def open(ser):
     # closes the file
     ser.close()
 
-#open(ser)
+#open_csv(ser)
 
 # saving the csv as a dataframe cause i know how to modify dataframes better than csvs
 
@@ -67,10 +70,11 @@ class Convert:
     docstring
     '''
 
-    def __init__(self, data: pd.DataFrame, vcc: float, number: int):
-        self.data = data
+    def __init__(self, dataframe: pd.DataFrame, vcc: float, number: int):
+        self.data = dataframe
         self.number = number
         self.vcc = vcc
+        self.fields = None
         self.null = None
         self.sensitivity = None
 
@@ -90,6 +94,19 @@ class Convert:
         '''
         docstring
         '''
+        # maybe this is another thing, like the calibration that should be a separate thing like will calculate it based off readings 
+        # from the arduino where the field is 0 and then get a sensitivity reading from that
+
+        # like i should put this is the calibration module so that i can enter the fields i want to calibrate against in an array
+        # and if that field value is 0 then i can do the null voltage
+        # so will just say like
+        #for field in fields:
+        #    if field == 0:
+        #        self.null_voltage = calculation for null
+
+        # then can save the null voltage as the voltage outputted whem field is zero.
+
+
 
         # need to find a way to calculate the null voltage - will just read it off sensor, for now using VCC /2
         self.null = self.vcc / 2
@@ -97,8 +114,18 @@ class Convert:
         # maybe a way to do it in the future is do it physically, using a multimeter
         # store the values in here:
         #    self.null = np.empty(self.number)
+
+        # -- need to do the actual null calculation now
+
         # then can use them like this when subtracting them
         #    self.data[self.data.columns[i+1] - self.null[i]]
+
+        # maybe should then convert the voltages that i currently have into the actual like change in voltage? 
+
+        for i in range(self.number):
+            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - self.null
+
+        # if have array of different null voltages for each sensor will just make above statement self.null[i]
 
     def calibrate(self, known_field_1: float) -> np.array:
         '''
@@ -112,7 +139,7 @@ class Convert:
         # will call this function and put in the field strength of known field
         for i in range(self.number):
             # will need to do this for each sensor (hence the for loop)
-            self.sensitivity[i] = (self.data[self.data.columns[i+1]] - self.null).mean() / known_field_1
+            self.sensitivity[i] = (self.data[self.data.columns[i+1]]).mean() / known_field_1
 
             # so now i should have one sensitivity for each sensor, stored in the self.sensitivity array
         return self.sensitivity
@@ -131,11 +158,11 @@ class Convert:
 
 # okay i think this has been successful. this should do what we need it to.I want to test it but will have to run it using a fake dataframe.
 
-def main(data: pd.DataFrame, vcc: float, number: int, field: float):
+def main(dataframe: pd.DataFrame, vcc: float, number: int, field: float):
     '''
     docstring
     '''
-    x = Convert(data, vcc, number)
+    x = Convert(dataframe, vcc, number)
     x.adc_to_voltages()
     x.null_voltage()
     x.calibrate(field)
@@ -170,7 +197,7 @@ if __name__ == '__main__':
 # going to add some quick plot code to plot the field strength recorded by each sensor against time, will plot both these 
 # lines on the same axis
 
-def plot(data: pd.DataFrame, number: int) -> None:
+def plot(dataframe: pd.DataFrame, number: int) -> None:
     '''
     docstring
     '''
@@ -179,7 +206,7 @@ def plot(data: pd.DataFrame, number: int) -> None:
     ax = fig.add_subplot(1,1,1)
 
     for i in range(number):
-        ax.plot(data[data.columns[0]], data[data.columns[number+i+1]], color = colors[i], label = f'sensor {i+1} fields')
+        ax.plot(dataframe[dataframe.columns[0]], dataframe[dataframe.columns[number+i+1]], color = colors[i], label = f'sensor {i+1} fields')
 
     ax.set_ylabel('Field strength recorded by sensors / T')
     ax.set_xlabel('Time since data collection began / ms')
