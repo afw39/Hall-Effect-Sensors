@@ -27,7 +27,11 @@ class Calibrate:
 
     def null_voltages(self) -> np.array:
         '''
-        docstring
+        stores the null voltage for each sensor in an array
+        Args:
+            None
+        Returns:
+            null_values (np.array): array of null voltages
         '''
         self.null_values = np.empty(self.number)
         null = np.empty(self.number)
@@ -36,9 +40,13 @@ class Calibrate:
             self.null_values = self.null_values.append(null[i])
         return self.null_values
 
-    def calibrate(self):
+    def calibrate(self) -> np.array:
         '''
-        docstring
+        calculates the sensitivity of each sensor in the current field
+        Args:
+            None
+        Returns:
+            sensitivities (np.array): array of sensitivity values
         '''
         sensitivity = np.empty(self.number)
         self.sensitivities = np.empty(self.number)

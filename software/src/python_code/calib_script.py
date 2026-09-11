@@ -1,4 +1,4 @@
-from calibration import Calibrate
+from calibrate import Calibrate
 from read import read_data
 from null_voltage import find_null_voltage, sensor_sensitivities
 

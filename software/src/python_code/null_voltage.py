@@ -1,10 +1,10 @@
 from read import read_data
-from calibration import Calibrate
+from calibrate import Calibrate
 import numpy as np
 
 def find_null_voltage(field: float, number: int, port: str, vcc: float, filename: str) -> np.array:
     '''
-    calculates the systematic error/null voltage of each sensor in the array
+    calculates the systematic error/null voltage of each sensor in the array by applying the method `null_voltages` from the `Calibrate` class
     Args:
         field (float): value of magnetic field sensors are in (always 0)
         number (int): number of sensors
