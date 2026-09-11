@@ -16,7 +16,7 @@ calibration_one_df = read_data(PORT, 'calibration-data-1.csv')
 x = Calibrate(calibration_one_df, NUMBER, FIELDS[1], VCC)
 sensitivity_data_1 = x.calibrate()
 
-#calibration two
+# calibration two
 calibration_two_df = read_data(PORT, 'calibration-data-2.csv')
 y = Calibrate(calibration_two_df, NUMBER, FIELDS[2], VCC)
 sensitivity_data_2 = y.calibrate()

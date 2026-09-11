@@ -3,7 +3,19 @@ import pandas as pd
 
 class Calibrate:
     '''
-    docstring
+    Calibrates the hall effect sensor, scalable to any number of sensors.
+    Determines sensitivity and null voltage of sensors to be used in data processing
+
+    Attributes:
+        dataframe (pd.DataFrame): the calibration data frame
+        number (int): number of sensors
+        field (float): known value of calibration field
+        vcc (float): VCC of Arduino
+
+    Methods:
+        null_voltages() -> np.array: calculates the null voltage (voltage outputted when field is 0)
+        calibrate() -> np.array: determines the sensitivity of each sensor in a field
+        
     '''
     def __init__(self, dataframe: pd.DataFrame, number: int, field: float, vcc: float) -> np.array:
         self.number = number
