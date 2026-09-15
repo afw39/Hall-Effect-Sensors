@@ -35,7 +35,7 @@ class Convert:
             data (pd.DataFrame): contains experimental data, now converted to voltages
         '''
         for i in range(self.number):
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / 1023
+            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / 4095
             self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - self.nulls[i]
         return self.data
 

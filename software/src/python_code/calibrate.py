@@ -33,11 +33,11 @@ class Calibrate:
         Returns:
             null_values (np.array): array of null voltages
         '''
-        self.null_values = np.empty(self.number)
-        null = np.empty(self.number)
+        self.null_values = [0] * self.number
+        null = [0] * self.number
         for i in range(self.number):
-            null[i] = (self.data[self.data.columns[i+1]] * self.vcc / 1023).mean()
-            self.null_values = self.null_values.append(null[i])
+            null[i] = (self.data[self.data.columns[i+1]] * self.vcc / 4095).mean()
+            self.null_values[i] = (null[i])
         return self.null_values
 
     def calibrate(self) -> np.array:
@@ -48,10 +48,10 @@ class Calibrate:
         Returns:
             sensitivities (np.array): array of sensitivity values
         '''
-        sensitivity = np.empty(self.number)
-        self.sensitivities = np.empty(self.number)
+        sensitivity = [0] * self.number
+        self.sensitivities = [0] * self.number
         for i in range(self.number):
             self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - self.null_values
             sensitivity[i] = (self.data[self.data.columns[i+1]].mean()) / self.field
-            self.sensitivities = self.sensitivities.append(sensitivity[i])
+            self.sensitivities[i] = sensitivity[i]
         return self.sensitivities

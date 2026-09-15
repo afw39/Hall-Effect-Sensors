@@ -5,9 +5,10 @@ from python_code.calibration_script import sensitivities, null_voltages
 PORT = 'COM3'
 NUMBER = 4
 VCC = 5
+SAMPLES = 200
 
 # to read it, save dataframe as reading of the csv
-data =  read_data(PORT, 'arduino-data.csv')
+data =  read_data(PORT, 'arduino-data.csv', SAMPLES)
 
 # convert the data
 x = Convert(data, NUMBER, null_voltages, VCC, sensitivities)

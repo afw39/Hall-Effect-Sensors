@@ -7,16 +7,17 @@ NUMBER = 4
 FIELDS = ([0, 6, 8]) # put these in in mT
 VCC = 5
 PORT = 'COM3'
+SAMPLES = 200
 
 # to find null voltage of sensors - will return array of null voltages for each sensor
 if FIELDS[0] == 0:
-    null_voltages = np.empty()
-    null_voltages = find_null_voltage(FIELDS[0], NUMBER, PORT, VCC, 'null-voltage-data.csv')
+    null_voltages = np.empty(NUMBER)
+    null_voltages = find_null_voltage(FIELDS[0], NUMBER, PORT, VCC, 'null-voltage-data.csv', SAMPLES)
 print('press enter when the null_voltage has been calculated and the experiment has been moved into a field ')
 input()
 
 # calibration one
-calibration_one_df = read_data(PORT, 'calibration-data-1.csv')
+calibration_one_df = read_data(PORT, 'calibration-data-1.csv', SAMPLES)
 x = Calibrate(calibration_one_df, NUMBER, FIELDS[1], VCC)
 sensitivity_data_1 = x.calibrate()
 
@@ -33,7 +34,7 @@ print('press enter when the first calibration field has been read and the setup 
 input()
 
 # calibration two
-calibration_two_df = read_data(PORT, 'calibration-data-2.csv')
+calibration_two_df = read_data(PORT, 'calibration-data-2.csv', SAMPLES)
 y = Calibrate(calibration_two_df, NUMBER, FIELDS[2], VCC)
 sensitivity_data_2 = y.calibrate()
 
