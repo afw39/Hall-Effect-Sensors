@@ -38,7 +38,7 @@ When the data arrives it is a table that will look something like this:
 ```
 The structure of the code is confusing as there is a lot of classes, methods and even variables imported from other files. This is necessary as in order to run the calibration for multiple fields, the first calibration must be done using one data file and then another time using another data file for a second field strength for the second calibration. It was easier to put functions such as `read_data`, which reads the arduino data, saves it in a csv and then converts it to a dataframe, in their own file to be easily imported to any file that needs them. 
 
-The null voltages and sensitivities will only need to be found once, at the beginning, during the calibration steps, however the null voltages must be found first and used to calculate the sensitivities. Both these properties need to be used and included in calculations for every data conversion process forward. They are saved as arrays in the `calib_script` where the calibration initiates and then imported to be used in the data conversion
+The null voltages and sensitivities will only need to be found once, at the beginning, during the calibration steps, however the null voltages must be found first and used to calculate the sensitivities. Both these properties need to be used and included in calculations for every data conversion process forward. They are saved as arrays in the `calib_script.py` where the calibration initiates and then imported to be used in the data conversion
 
 ### Key classes and methods:
 #### Classes: 
