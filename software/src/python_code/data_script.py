@@ -1,6 +1,6 @@
 from read import read_data
 from convert import Convert
-from calib_script import sensitivities, null_voltages
+from python_code.calibration_script import sensitivities, null_voltages
 
 PORT = 'COM3'
 NUMBER = 4

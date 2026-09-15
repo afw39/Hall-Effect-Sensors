@@ -17,23 +17,23 @@ from pathlib import Path
 #ser = serial.Serial('COM3', 9600)
 
 # puts data into csv file called 'arduino-data.csv'
-def open_csv(ser):
-    with open('arduino-data.csv', 'w', newline = '', encoding = 'utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        #saves the headings
-        header = ser.readline().decode().strip()
-        #splits them by commas into cells
-        writer.writerow(header.split(","))
-
-        # read the rest of the data and split them by commas
-        while True:
-            line = ser.readline().decode().strip()
-            if line:
-                values = line.split(',')
-                writer.writerow(values)
-                print(values)
-    # closes the file
-    ser.close()
+#def open_csv(ser):
+#    with open('arduino-data.csv', 'w', newline = '', encoding = 'utf-8') as csvfile:
+#        writer = csv.writer(csvfile)
+#        #saves the headings
+#        header = ser.readline().decode().strip()
+#        #splits them by commas into cells
+#        writer.writerow(header.split(","))
+#
+#        # read the rest of the data and split them by commas
+#        while True:
+#            line = ser.readline().decode().strip()
+#            if line:
+#                values = line.split(',')
+#                writer.writerow(values)
+#                print(values)
+#     closes the file
+#    ser.close()
 
 #open_csv(ser)
 
