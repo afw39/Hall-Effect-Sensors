@@ -1,9 +1,6 @@
-# WHOLE OF CALIBRATION IN HERE
-# so i need the null voltage results and the sensitivities to be in the same class
-
-
-import pandas as pd
 import time
+import pandas as pd
+from pathlib import Path
 import numpy as np
 from read import read_data
 
@@ -16,14 +13,14 @@ class Calibration:
                       filename: str, samples: int = 200, delay: int = 100):
         self.field = field
         self.number = number
-        self.port = port 
+        self.port = port
         self.vcc = vcc
         self.filename = filename
         self.samples = samples
         self.average_null = None
         self.null_values = None
         self.calibration_df = None
-        self.null_voltages_averaged = None # array version for calibration 
+        self.null_voltages_averaged = None 
         self.delay = delay
         self.sensitivities = None
         self.sensitivities_averaged_frame = None
@@ -40,9 +37,9 @@ class Calibration:
             self.calibration_df = read_data(self.port,self.filename, self.samples)
             self.null_values = [0] * self.number
             null = [0] * self.number
-            for i in range(self.number):
-                null[i] = (self.calibration_df[self.calibration_df.columns[i+1]] * self.vcc / 4095).mean()
-                self.null_values[i] = (null[i])
+            for x in range(self.number):
+                null[x] = (self.calibration_df[self.calibration_df.columns[x+1]] * self.vcc / 4095).mean()
+                self.null_values[x] = (null[x])
 
             null_frame.iloc[i] = self.null_values
             time.sleep(10)
@@ -53,9 +50,9 @@ class Calibration:
 
         self.average_null.iloc[0] = self.null_voltages_averaged
 
-        return self.average_null, self.null_voltages_averaged
+        return self.average_null
 
-    def perform_calibration(self, fields: np.array, filename: str):
+    def perform_calibration(self, fields: np.array, filename: str) -> pd.DataFrame:
         '''
         doc
         '''
@@ -73,9 +70,9 @@ class Calibration:
             self.calibration_data = read_data(self.port, filename, self.samples)
 
             self.sensitivities = [0] * self.number
-            for i in range(self.number):
-                self.data[self.calibration_data.columns[i+1]] = self.calibration_data[self.calibration_data.columns[i+1]] - self.null_voltages_averaged[i]
-                self.sensitivities[i] = (self.calibration_data[self.calibration_data.columns[i+1]].mean()) / self.field
+            for x in range(self.number):
+                self.calibration_data[self.calibration_data.columns[x+1]] = self.calibration_data[self.calibration_data.columns[x+1]] - self.null_voltages_averaged[x]
+                self.sensitivities[x] = (self.calibration_data[self.calibration_data.columns[x+1]].mean()) / fields[i]
         
 
 
@@ -90,8 +87,12 @@ class Calibration:
 
         return self.sensitivities_averaged_frame
 
-    def make_callable_csv(self):
+    def make_callable_csv(self) -> None:
         '''
         i guess i want this to combine the two dataframes of null voltages
         and sensitivities to be used for the actual data collection
         '''
+        combined_df = pd.concat([self.average_null, self.sensitivities_averaged_frame])
+        script_dir = Path(__file__).parent
+        output_file = script_dir/'combined_data.csv'
+        combined_df.to_csv(output_file, index = False)
