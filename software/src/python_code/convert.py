@@ -50,4 +50,8 @@ class Convert:
         for i in range(self.number):
             self.data[f'field_strength_sensor_{i+1}'] = self.data[self.data.columns[i+1]] / self.sensitivities[i]
         return self.data
+
+       # need to change this to - i think I want it to just have the columns for the sensors and the field strength
+       # so i want the field strength columns/values to overwrite the exisiting voltage values 
+       # once have finished doing the calibration code, can start of this and do a similar structure 
        
