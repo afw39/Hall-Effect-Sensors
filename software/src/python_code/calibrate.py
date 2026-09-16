@@ -40,7 +40,7 @@ class Calibrate:
             self.null_values[i] = (null[i])
         return self.null_values
 
-    def calibrate(self) -> np.array:
+    def calibrate(self, nulls: np.array) -> np.array:
         '''
         calculates the sensitivity of each sensor in the current field
         Args:
@@ -51,7 +51,7 @@ class Calibrate:
         sensitivity = [0] * self.number
         self.sensitivities = [0] * self.number
         for i in range(self.number):
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - self.null_values
+            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - nulls[i]
             sensitivity[i] = (self.data[self.data.columns[i+1]].mean()) / self.field
             self.sensitivities[i] = sensitivity[i]
         return self.sensitivities
