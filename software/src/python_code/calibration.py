@@ -76,6 +76,7 @@ class Calibration:
         '''
         uses the null voltages calculated previously and calculates the average
         sensitivity of each sensor using known values of the calibration field strengths
+        sensitivities are calculated in units of mV/T
         Args:
             fields (np.array): array containing the values of each calibration field strength 
         Returns:
@@ -90,14 +91,17 @@ class Calibration:
         how_many_fields = len(fields)
         sensitivities_averaged = np.empty(self.number)
 
+        # im not sure in here the data has been converted yet??? where do i do the (* vcc / 4095) nowhere??
     
         for i in range(how_many_fields):
             self.calibration_data = read_data(self.port, self.filename, self.samples)
 
             self.sensitivities = [0] * self.number
             for x in range(self.number):
+                self.calibration_data[self.calibration_data.columns[x+1]] = self.calibration_data[self.calibration_data.columns[x+1]] * self.vcc / 4095
                 self.calibration_data[self.calibration_data.columns[x+1]] -= self.null_voltages_averaged[x]
                 self.sensitivities[x] = (self.calibration_data[self.calibration_data.columns[x+1]].mean()) / fields[i]
+                self.sensitivities[x] = self.sensitivities[x] * 1000000
 
             sensitivity_frame.iloc[i] = self.sensitivities
             if i+1 == how_many_fields:

@@ -78,7 +78,7 @@ class Conversion:
     def field_strengths(self) -> pd.DataFrame:
         '''
         method for converting the voltages into field strengths using the calculated sensitivity
-        values for each sensor from the calibration steps
+        values for each sensor from the calibration steps. field strengths are calculated in mT
         Args:
             None
         Returns:
@@ -87,10 +87,13 @@ class Conversion:
         '''
 
         for i in range(self.number):
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] / self.sensitivities[i]
+            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] / (self.sensitivities[i] / 1000)
+            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * 1000
             if i == 0:
-                self.data.rename(columns={self.data.columns[0]: 'time/ms'}, inplace = True)
-            self.data.rename(columns={self.data.columns[i+1]:f'field_strength_sensor_{i+1}'}, inplace = True)
+                self.data.rename(columns={self.data.columns[0]: 'time/s'}, inplace = True)
+            self.data.rename(columns={self.data.columns[i+1]:f'field_strength_S{i+1}/mT'}, inplace = True)
+        self.data[self.data.columns[0]] = self.data[self.data.columns[0]].astype(float)
+        self.data['time/s'] = self.data['time/s'] / 1000
 
         return self.data
 
@@ -107,3 +110,4 @@ class Conversion:
         self.get_params()
         self.into_voltage()
         self.field_strengths()
+    
