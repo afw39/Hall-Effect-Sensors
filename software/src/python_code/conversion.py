@@ -5,7 +5,30 @@ from read import read_data
 
 class Conversion:
     '''
-    docstring
+    class for converting the raw data read from the hall effect sensors and the Arduino into useful data (field
+    strengths for each sensor and time stamps). Uses the null voltage and sensitivity values calulated during
+    the calibration steps.
+
+    Attributes:
+        port (str): the port of the computer that the arduino/hall effect sensor array is plugged in to
+        filename (str): the name of the csv file that stores the data being read - is converted to a 
+            pandas dataframe for easier manipulation
+        number (int): the number of sensors in the array - provides information for how many iterations 
+            are required
+        vcc (float): the VCC (voltage output) of the arduino into the sensors
+        samples (int): the number of data samples taken 
+    
+    Methods:
+        get_params() -> None: 
+            reads the csv file where the calibration parameters are stored and saves them
+            as arrays so that they can be used in this class for the conversion
+        into_voltage() -> None: 
+            multiplies the numbers outputted by the sensors to convert them into voltages,
+            and subtracts the null voltage for each sensor off of that sensors readings
+        field_strengths() -> pd.DataFrame: 
+            converts the voltages into field strengths by dividing by the sensitivity
+        run() -> None: 
+            method for running the other methods in the class
     '''
 
     def __init__(self, port: str, filename: str, number: int, vcc: float, samples: int = 200):
@@ -27,10 +50,7 @@ class Conversion:
         Args: 
             None
         Returns:
-            self.nulls (np.array): array of length self.number containing null voltage of each sensor,
-                calculated during the calibration steps
-            self.sensitivities (np.array): array containing the average sensitivity of each sensor,
-                calculated during calibration
+            None
         '''
 
         dataframe = pd.read_csv('combined-data.csv')
@@ -57,7 +77,13 @@ class Conversion:
 
     def field_strengths(self) -> pd.DataFrame:
         '''
-        docstring
+        method for converting the voltages into field strengths using the calculated sensitivity
+        values for each sensor from the calibration steps
+        Args:
+            None
+        Returns:
+            self.data (pd.DataFrame): data frame that now contains the time stamp and the field strengths felt 
+            by each sensor in the array
         '''
 
         for i in range(self.number):
@@ -70,7 +96,12 @@ class Conversion:
 
     def run(self):
         '''
-        docstring
+        method for running the methods within this class. This method is called in the 
+        `__init__()` method and allows the class to be called from outside only once
+        Args:
+            None
+        Returns:
+            None
         '''
 
         self.get_params()
