@@ -1,34 +1,54 @@
 import time
-import pandas as pd
 from pathlib import Path
+import pandas as pd
 import numpy as np
 from read import read_data
 
 class Calibration:
     '''
-    doc
+    Class for calibrating the 
+
+    Attributes 
+        number (int): number of sensors present in the array
+        port (str): name of the computer port the arduino is linked to
+        vcc (float): value of the VCC output from the arduino
+        filename (str): csv filename the data is stored in
+        samples (int): how many data samples each reading takes
+        delay (int): the time between calibration recordings 
+
+    Methods:
+        find_null_voltage() -> pd.DataFrame:
+            computes and stores null voltages for each sensor in the array
+        perform_calibration() -> pd.DataFrame:
+            computes and stores the average value for sensitivity for each sensor
     '''
 
-    def __init__(self, field: float, number: int, port: str, vcc: float,
+    def __init__(self, number: int, port: str, vcc: float,
                       filename: str, samples: int = 200, delay: int = 100):
-        self.field = field
         self.number = number
         self.port = port
         self.vcc = vcc
         self.filename = filename
         self.samples = samples
+        self.delay = delay
         self.average_null = None
         self.null_values = None
         self.calibration_df = None
-        self.null_voltages_averaged = None 
-        self.delay = delay
+        self.null_voltages_averaged = None
         self.sensitivities = None
         self.sensitivities_averaged_frame = None
         self.calibration_data = None
 
-    def find_null_voltage(self) -> pd.DataFrame:
+        self.find_null_voltage()
+
+    def find_null_voltage(self) -> None:
         '''
-        docstring
+        method that computes the null voltage for each sensor in the array,
+        takes an average and saves them to an empty data frame
+        Args:
+            None
+        Returns:
+            None
         '''
         null_frame = pd.DataFrame(np.zeros((3, self.number)), dtype = float)
         self.average_null = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
@@ -42,7 +62,8 @@ class Calibration:
                 self.null_values[x] = (null[x])
 
             null_frame.iloc[i] = self.null_values
-            time.sleep(10)
+            if i+1 < 3:
+                time.sleep(10)
 
         self.null_voltages_averaged = np.empty(self.number)
         for i in range(self.number):
@@ -50,11 +71,15 @@ class Calibration:
 
         self.average_null.iloc[0] = self.null_voltages_averaged
 
-        return self.average_null
 
-    def perform_calibration(self, fields: np.array, filename: str) -> pd.DataFrame:
+    def perform_calibration(self, fields: np.array) -> None:
         '''
-        doc
+        uses the null voltages calculated previously and calculates the average
+        sensitivity of each sensor using known values of the calibration field strengths
+        Args:
+            fields (np.array): array containing the values of each calibration field strength 
+        Returns:
+            None 
         '''
         sensitivity_frame = pd.DataFrame(np.zeros((len(fields), self.number)), dtype = float)
         self.sensitivities_averaged_frame = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
@@ -67,17 +92,19 @@ class Calibration:
 
     
         for i in range(how_many_fields):
-            self.calibration_data = read_data(self.port, filename, self.samples)
+            self.calibration_data = read_data(self.port, self.filename, self.samples)
 
             self.sensitivities = [0] * self.number
             for x in range(self.number):
-                self.calibration_data[self.calibration_data.columns[x+1]] = self.calibration_data[self.calibration_data.columns[x+1]] - self.null_voltages_averaged[x]
+                self.calibration_data[self.calibration_data.columns[x+1]] -= self.null_voltages_averaged[x]
                 self.sensitivities[x] = (self.calibration_data[self.calibration_data.columns[x+1]].mean()) / fields[i]
-        
-
 
             sensitivity_frame.iloc[i] = self.sensitivities
-            print(f'the data will start recording again in {self.delay} seconds')
+            if i+1 == how_many_fields:
+                print('data recording complete...')
+                
+            else:
+                print(f'the data will start recording again in {self.delay} seconds...')
             time.sleep(self.delay)
 
         for i in range(self.number):
@@ -85,14 +112,20 @@ class Calibration:
 
         self.sensitivities_averaged_frame.iloc[0] = sensitivities_averaged
 
-        return self.sensitivities_averaged_frame
+        self.make_callable_csv()
+
 
     def make_callable_csv(self) -> None:
         '''
-        i guess i want this to combine the two dataframes of null voltages
-        and sensitivities to be used for the actual data collection
+        combines the two data frames containing null voltages and sensitivities for 
+        each sensor into one to convert that to a csv. This is done so that the values
+        can be accessed during the actual data recording by calling on the csv
+        Args:
+            None
+        Returns:
+            None
         '''
         combined_df = pd.concat([self.average_null, self.sensitivities_averaged_frame])
         script_dir = Path(__file__).parent
-        output_file = script_dir/'combined_data.csv'
+        output_file = script_dir/'combined-data.csv'
         combined_df.to_csv(output_file, index = False)
