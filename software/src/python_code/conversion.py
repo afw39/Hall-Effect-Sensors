@@ -5,9 +5,9 @@ from read import read_data
 
 class Conversion:
     '''
-    class for converting the raw data read from the hall effect sensors and the Arduino into useful data (field
-    strengths for each sensor and time stamps). Uses the null voltage and sensitivity values calulated during
-    the calibration steps.
+    class for converting the raw data read from the hall effect sensors and the Arduino into useful data 
+    (field strengths for each sensor and time stamps). Uses the null voltage and sensitivity values 
+    calulated during the calibration steps.
 
     Attributes:
         port (str): the port of the computer that the arduino/hall effect sensor array is plugged in to
@@ -82,8 +82,8 @@ class Conversion:
         Args:
             None
         Returns:
-            self.data (pd.DataFrame): data frame that now contains the time stamp and the field strengths felt 
-            by each sensor in the array
+            self.data (pd.DataFrame): data frame that now contains the time stamp and the field strengths 
+            felt by each sensor in the array
         '''
 
         for i in range(self.number):
