@@ -9,6 +9,8 @@ def read_data(port: str, filename: str, samples: int = 200) -> pd.DataFrame:
     Uses the serial library to get the data from the arduino, saves it as a csv file.
     Args:
         port (str): computer port that the arduino is connected to
+        filename (str): filename that the data is saved under (csv)
+        samples (int): how many samples (timestamps) are read
     Retuns:
         df (pd.DataFrame): the dataframe that the arduino data is stored in
     '''
