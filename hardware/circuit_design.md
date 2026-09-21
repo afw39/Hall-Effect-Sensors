@@ -11,5 +11,4 @@ The sensors VCC pin needs to connect to the Arduino 5 V pin, the GND to the GND 
 This is what the 8-sensor array looks like:
 
 <img width="1440" height="1920" alt="circuit_picture_1" src="https://github.com/user-attachments/assets/ddfddadb-0f1a-440b-860e-554a3c31b50b" />
-
 <img width="1440" height="1920" alt="circuit_picture_2" src="https://github.com/user-attachments/assets/953079b6-917d-429e-9380-0d0f079cc0f2" />
