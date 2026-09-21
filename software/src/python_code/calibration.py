@@ -6,7 +6,9 @@ from read import read_data
 
 class Calibration:
     '''
-    Class for calibrating the 
+    Class for calibrating the sensors, calculates the calibration
+    parameters of the null voltage and the sensitivity of each
+    sensor
 
     Attributes 
         number (int): number of sensors present in the array
