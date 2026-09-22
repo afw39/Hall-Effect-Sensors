@@ -20,12 +20,12 @@ software /
 |---- src/
 |     |---- arduino_code/                   # contains all modules of arduino code
 |           |---- arduino_code_1/
-|                 |---- arduino_code_1.ino  # code for 1 sensor array
+|                 |---- arduino_code_1.ino  
 |           |---- arduino_code_4/
-|                 |---- arduino_code_4.ino  # code for 4 sensor array
+|                 |---- arduino_code_4.ino  
 |           |---- arduino_code_8/
-|                 |---- arduino_code_8.ino  # code for 8 sensor array
-|     |---- python_code/                    # contains all modules of python code - more about each one in software/overview.md
+|                 |---- arduino_code_8.ino  
+|     |---- python_code/                    # contains all modules of python code 
 |           |---- calibration.py
 |           |---- calibration_script.py
 |           |---- conversion.py
