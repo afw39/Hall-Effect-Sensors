@@ -51,7 +51,7 @@ scripts contains a class for sensor calibration and data conversion
         - `samples (int)`: how many data samples each reading takes   
         - `delay (int)`: the time between calibration recordings    
   Methods:    
-  - `find_null_voltage() -> pd.DataFrame`: computes and stores null voltages for each sensor in the array   
+        - `find_null_voltage() -> pd.DataFrame`: computes and stores null voltages for each sensor in the array   
         - `perform_calibration() -> pd.DataFrame`: computes and stores the average value for sensitivity for each    sensor     
        
 - `Convert`: class for converting the raw data read from the hall effect sensors and the Arduino into useful data (field strengths for each sensor and time stamps). Uses the null voltage and sensitivity values calulated during the calibration steps.    
