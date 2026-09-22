@@ -130,6 +130,7 @@ class Calibration:
             None
         '''
         combined_df = pd.concat([self.average_null, self.sensitivities_averaged_frame])
+        print(combined_df)
         script_dir = Path(__file__).parent
         output_file = script_dir/'combined-data.csv'
         combined_df.to_csv(output_file, index = False)
