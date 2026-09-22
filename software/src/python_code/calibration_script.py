@@ -2,4 +2,4 @@ from calibration import Calibration
 
 x = Calibration(number = 8, port = '/dev/ttyACM0', vcc = 3.3,
                 filename = 'calibration-data.csv',samples = 50, delay = 1)
-x.perform_calibration(fields = [2, 6]) # input fields in mT
+x.perform_calibration(fields = [2, 6], fields_uncertainty = 0.05) # input fields in mT

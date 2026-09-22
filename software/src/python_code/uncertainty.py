@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 from read import read_data
+import pandas as pd
 
 class StandardDeviation:
     '''
@@ -79,3 +80,16 @@ class StandardDeviation:
 
 StandardDeviation(number = 8, port = '/dev/ttyACM0',
                   filename = 'standard-deviation.csv', samples = 4000)
+
+
+
+# gonna try do some uncertainties here, will end up just putting this into the conversion.py
+# for the standard deviation one i might just add a parameter for sd and if sd=yes then it does
+# the noise analysis and histograms and what not but i'll see
+# maybe should add to the histogram plot like a print off the average standard deviation and 
+# what the uncertainty is or something?  idk
+
+# steps for finding the uncertainty in the field
+# need to do propagation of uncertainties for this
+
+def uncertainty_in_null(dataframe: pd.DataFrame, vcc: float, vcc_un: float, null_voltages )
