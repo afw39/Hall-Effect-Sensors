@@ -11,21 +11,21 @@ This repository contains all the information about the hall effect sensor array.
 LICENSE
 README.md
 hardware /
-|---- CAD_design.md      # explanation of the CAD design
-|---- circuit_design.md  # explanation of the circuit design
-|---- equipment.md       # equipment used for this project
-|---- overview.md        # general overview of how the experimental setup will work
+|---- CAD_design.md                         # explanation of the CAD design
+|---- circuit_design.md                     # explanation of the circuit design
+|---- equipment.md                          # equipment used for this project
+|---- overview.md                           # general overview of how the experimental setup will work
 software /
-|---- overview.md        # details how the arduino and python code work
+|---- overview.md                           # details how the arduino and python code work
 |---- src/
-|     |---- arduino_code/           # contains all modules of arduino code
+|     |---- arduino_code/                   # contains all modules of arduino code
 |           |---- arduino_code_1/
-|                 |---- arduino_code_1.ino    # code for 1 sensor array
+|                 |---- arduino_code_1.ino  # code for 1 sensor array
 |           |---- arduino_code_4/
-|                 |---- arduino_code_4.ino    # code for 4 sensor array
+|                 |---- arduino_code_4.ino  # code for 4 sensor array
 |           |---- arduino_code_8/
-|                 |---- arduino_code_8.ino    # code for 8 sensor array
-|     |---- python_code/           # contains all modules of python code - more about each one in software/overview.md
+|                 |---- arduino_code_8.ino  # code for 8 sensor array
+|     |---- python_code/                    # contains all modules of python code - more about each one in software/overview.md
 |           |---- calibration.py
 |           |---- calibration_script.py
 |           |---- conversion.py
