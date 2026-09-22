@@ -29,10 +29,10 @@ When the data arrives it is a table that will look something like this:
 ```
 .......................................
  time        sensor1           sensor2
- 0            789               775
- 500          843               812
- 1000         797               804
- 1500         802               786
+ 0            2041               1983
+ 500          2037               1976
+ 1000         2031               1982
+ 1500         2039               1981
 .......................................
 ```
 The code is structured so that there are two scripts designated to both the sensor calibration and the data conversion. The fifth script is just for reading the data from the Arduino and is called upon and used in both `conversion.py` and `calibrate.py`. 
@@ -70,6 +70,8 @@ scripts contains a class for sensor calibration and data conversion
 The only method present that doesn't come under another class:     
 - `read_data(port: str, filename: str)`: this method is used in many scripts, this is how the scripts get the data from the arduino. This takes inputs of what port the arduino is connected to and what name the data should be saved under. It reads it in using the serial library and writes it to a csv file before converting it in a pandas dataframe for data processing. only method found in `read.py`
 
-After the data has been through the `Convert` class, the dataframe looks like this (performed with 4 sensors in the circuit):
-<img width="1870" height="162" alt="image" src="https://github.com/user-attachments/assets/540f7c54-473e-4cb4-af4a-fbcc221fb5bf" />
-need to change this photo as it now will have the units in the columns
+Basically, the calibration runs and determines the null voltage and the sensitivity of each sensor in the array, this is then stored in a csv file called 'combined-data.csv', this csv file is then read in to the conversion code and the values are extracted to be used again. The conversion code then converts the sensor outputs to magnetic fields. The output of the conversion code looks like this: 
+
+<img width="1741" height="381" alt="image" src="https://github.com/user-attachments/assets/02bd930f-f168-415a-b204-157c3baae269" />
+
+(The values for the magnetic fields are incorrect as this was not calibrated in real fields.) 
