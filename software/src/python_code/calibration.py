@@ -92,8 +92,6 @@ class Calibration:
    
         how_many_fields = len(fields)
         sensitivities_averaged = np.empty(self.number)
-
-        # im not sure in here the data has been converted yet??? where do i do the (* vcc / 4095) nowhere??
     
         for i in range(how_many_fields):
             self.calibration_data = read_data(self.port, self.filename, self.samples)
@@ -132,6 +130,7 @@ class Calibration:
             None
         '''
         combined_df = pd.concat([self.average_null, self.sensitivities_averaged_frame])
+        print(combined_df)
         script_dir = Path(__file__).parent
         output_file = script_dir/'combined-data.csv'
         combined_df.to_csv(output_file, index = False)

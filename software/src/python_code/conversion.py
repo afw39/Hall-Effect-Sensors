@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from read import read_data
 
 
@@ -53,12 +54,15 @@ class Conversion:
             None
         '''
 
-        dataframe = pd.read_csv('combined-data.csv')
+        csv_path = Path(__file__).resolve().with_name("combined-data.csv")
+
+        dataframe = pd.read_csv(csv_path)
 
         self.nulls = np.empty(self.number)
         self.sensitivities = np.empty(self.number)
         self.nulls = dataframe.iloc[0].to_numpy()
         self.sensitivities = dataframe.iloc[1].to_numpy()
+    
 
     def into_voltage(self) -> None:
         '''
@@ -71,6 +75,7 @@ class Conversion:
         '''
 
         self.data = read_data(self.port, self.filename, self.samples)
+
         for i in range(self.number):
             self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / 4095
             self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - self.nulls[i]
@@ -108,6 +113,7 @@ class Conversion:
         '''
 
         self.get_params()
+        print(self.nulls)
         self.into_voltage()
         self.field_strengths()
     
