@@ -44,27 +44,27 @@ The null voltages and sensitivities will only need to be found once, at the begi
 scripts contains a class for sensor calibration and data conversion
 - `Calibrate`: Class for calibrating the sensors, calculates the calibration parameters of the null voltage and the sensitivity of each sensor   
    Attributes:    
-        `number (int)`: number of sensors present in the array    
-        `port (str)`: name of the computer port the arduino is linked to   
-        `vcc (float)`: value of the VCC output from the arduino    
-        `filename (str)`: csv filename the data is stored in      
-        `samples (int)`: how many data samples each reading takes   
-        `delay (int)`: the time between calibration recordings    
+        - `number (int)`: number of sensors present in the array    
+        - `port (str)`: name of the computer port the arduino is linked to   
+        - `vcc (float)`: value of the VCC output from the arduino    
+        - `filename (str)`: csv filename the data is stored in      
+        - `samples (int)`: how many data samples each reading takes   
+        - `delay (int)`: the time between calibration recordings    
   Methods:    
-        `find_null_voltage() -> pd.DataFrame`: computes and stores null voltages for each sensor in the array   
-        `perform_calibration() -> pd.DataFrame`: computes and stores the average value for sensitivity for each    sensor     
+  - `find_null_voltage() -> pd.DataFrame`: computes and stores null voltages for each sensor in the array   
+        - `perform_calibration() -> pd.DataFrame`: computes and stores the average value for sensitivity for each    sensor     
        
 - `Convert`: class for converting the raw data read from the hall effect sensors and the Arduino into useful data (field strengths for each sensor and time stamps). Uses the null voltage and sensitivity values calulated during the calibration steps.    
   Attributes:    
-       `port (str)`: the port of the computer that the arduino/hall effect sensor array is plugged in to   
-       `filename (str)`: the name of the csv file that stores the data being read - is converted to a pandas dataframe for easier manipulation    
-       `number (int)`: the number of sensors in the array - provides information for how many iterations are required     
-       `vcc (float)`: the VCC (voltage output) of the arduino into the sensors samples (int): the number of data samples taken      
+       - `port (str)`: the port of the computer that the arduino/hall effect sensor array is plugged in to   
+       - `filename (str)`: the name of the csv file that stores the data being read - is converted to a pandas dataframe for easier manipulation    
+       - `number (int)`: the number of sensors in the array - provides information for how many iterations are required     
+       - `vcc (float)`: the VCC (voltage output) of the arduino into the sensors samples (int): the number of data samples taken      
   Methods:
-       `get_params() -> None`: reads the csv file where the calibration parameters are stored and saves them as arrays so that they can be used in this class for the conversion     
-       `into_voltage() -> None`: multiplies the numbers outputted by the sensors to convert them into voltages and subtracts the null voltage for each sensor off of that sensors readings    
-       `field_strengths() -> pd.DataFrame`: converts the voltages into field strengths by dividing by the sensitivity    
-       `run() -> None:` method for running the other methods in the class    
+       - `get_params() -> None`: reads the csv file where the calibration parameters are stored and saves them as arrays so that they can be used in this class for the conversion     
+       - `into_voltage() -> None`: multiplies the numbers outputted by the sensors to convert them into voltages and subtracts the null voltage for each sensor off of that sensors readings    
+       - `field_strengths() -> pd.DataFrame`: converts the voltages into field strengths by dividing by the sensitivity    
+       - `run() -> None:` method for running the other methods in the class    
 
 #### Methods:   
 The only method present that doesn't come under another class:     
