@@ -3,7 +3,7 @@
 # Hall Effect Sensor Project
 
 This repository contains all the information about the hall effect sensor array. The first stage of the project is starting with a basic version of the project. I will start with a few hall effect sensors and construct a working circuit with working software. The end goal of this project is to create a live magnetic field map using hall effect sensors and integrate that into MatchID software to visualise the magnetic field strength distributions across a sample undergoing deformation. The project consists of hardware (circuit design and experimental setup) and software (arduino code and python software) that collect data from the sensors and turn it into useful data.
-
+------------------------------------------------------------------------------------------------------------------------
 ## Repository structure
 ```
 .gitignore
