@@ -1,35 +1,41 @@
-# going to try find the standard deviation of the signal outputted
-# by the sensors and plot them in a histogram??? (and hope they
-# follow a normal distribution)
+'''finds the standard deviation and visualises noise analysis of sensor array'''
 
-# steps:
-# 1. read data, like 100 samples maybs
-# 2. find the mean
-# 3. subtract the mean from each data point
-# 4. square this result
-# 5. average these squares (gets variance)
-# 6. square root this average (s.d.)
-
-# not sure how im going to get like loads of standard deviations to plot but will be fine, 
-# we can cross that bridge when we get there
-
-import pandas as pd
 import matplotlib.pyplot as plt
 from read import read_data
 
-sd_data = read_data(port = '/dev/ttyACM0', filename = 'standard-deviation.csv', samples = 4000)
-
 class StandardDeviation:
     '''
-    docstring
+    Class for finding the standard deviation of each sensor across 'samples' number of sample
+
+    Attributes
+        number (int): the number of sensors in the array
+        port (str): the port of the computer that the Arduino is connected to
+        filename (str): where the data that is read in will be stored
+        samples (int): how many samples are taken
+    
+    Methods
+        calc_standard_deviation() -> list: 
+            calculates the standard deviation of each column of the dataframe which corresponds
+            to each sensors set of data
+        plot() -> None:
+            plots the distribution of data points for each sensor to visualise the noise
+        run() -> None:
+            runs the other two methods in the class
     '''
-    def __init__(self, data:pd.DataFrame, number: int):
-        self.data = data
+    def __init__(self, number: int, port: str, filename: str, samples: int):
         self.number = number
+        self.data = None
+
+        self.data = read_data(port, filename, samples)
+        self.run()
 
     def calc_standard_deviation(self) -> list:
         '''
-        docstring
+        calculates the standard deviation for each sensor
+        Args:
+            None
+        Returns:
+            std (list): the list of the standard deviations for each sensor
         '''
         std = [0] * self.number
 
@@ -37,21 +43,39 @@ class StandardDeviation:
             cols = self.data[self.data.columns[i+1]]
             std[i] = cols.std(ddof=1)
 
+        print(std)
+
         return std
-    
-x = StandardDeviation(data = sd_data, number = 8)
-stds = x.calc_standard_deviation()
-print(stds)
 
+    def plot(self) -> None:
+        '''
+        plots the noise analysis histograms
+        Args:
+            None
+        Returns:
+            None
+        '''
+        fig, axs = plt.subplots(2,4, figsize = (12,6))
 
-fig, axs = plt.subplots(2, 4, figsize=(12, 6))
+        for i in range(self.number):
+            col = self.data[self.data.columns[i+1]]
 
-for i in range(8):
-    col = sd_data[sd_data.columns[i+1]]
+            axs[i//4, i%4].hist(col, bins = 35)
+            axs[i//4, i%4].set_title(f"sensor {i+1}")
 
-    axs[i//4, i%4].hist(col, bins=20)
-    axs[i//4, i%4].set_title(f"Sensor {i+1}")
+        plt.tight_layout()
+        plt.show()
 
-plt.tight_layout()
+    def run(self) -> None:
+        '''
+        runs the other methods
+        Args:
+            None
+        Returns:
+            None
+        '''
+        self.calc_standard_deviation()
+        self.plot()
 
-plt.show()
+StandardDeviation(number = 8, port = '/dev/ttyACM0',
+                  filename = 'standard-deviation.csv', samples = 4000)
