@@ -18,7 +18,7 @@ software/
 ```
 
 ## Arduino code
-This is pretty simple software. Uses the serial monitor to print a time stamp and also the sensor reading for however many sensors is being used. Very customisable and scalable for any number of sensors, will simply create a new column in the code. 
+This is pretty simple software. Uses the serial monitor to print a time stamp and also the sensor reading for however many sensors is being used. Very customisable and scalable for any number of sensors, will simply create a new column in the code. This code below is for 2 sensors, however can be used for any number of sensors up to and including 8 sensors (as that is how many analogue pins the Arduino has)
 <img width="1076" height="706" alt="image" src="https://github.com/user-attachments/assets/8791c006-0acb-45ad-8cb5-29af59010a5b" />
 
 ## Python code
