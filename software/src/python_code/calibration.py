@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from read import read_data
+from uncertainty import StandardDeviation
 
 class Calibration:
     '''
@@ -26,7 +27,7 @@ class Calibration:
     '''
 
     def __init__(self, number: int, port: str, vcc: float,
-                      filename: str, samples: int = 200, delay: int = 100, vcc_un: float):
+                      filename: str, vcc_un: float, samples: int = 200, delay: int = 100):
         self.number = number
         self.port = port
         self.vcc = vcc
@@ -43,7 +44,9 @@ class Calibration:
         self.calibration_data = None
         self.uncertainty_sen_frame = None
         self.uncertainty_in_nulls = None
-        
+        self.averaged_sen_uncertainties = None
+        self.null_uncertainty_df = None
+        self.stds = None
 
         self.find_null_voltage()
 
@@ -64,7 +67,7 @@ class Calibration:
             self.null_values = [0] * self.number
             null = [0] * self.number
             for x in range(self.number):
-                null[x] = (self.calibration_df[self.calibration_df.columns[x+1]] * self.vcc / 4095).mean()
+                null[x] = (self.calibration_df[self.calibration_df.columns[x+1]] * self.vcc / 1023).mean()
                 self.null_values[x] = (null[x])
 
             null_frame.iloc[i] = self.null_values
@@ -76,35 +79,53 @@ class Calibration:
             self.null_voltages_averaged[i] = null_frame[null_frame.columns[i]].mean()
 
         self.average_null.iloc[0] = self.null_voltages_averaged
+        self.get_stds()
+
+
+    def get_stds(self) -> None:
+        '''
+        docstring
+        '''
+        x = StandardDeviation(number = self.number, port = self.port, filename = 'standard-deviation.csv', samples = 100)
+        stds = x.calc_standard_deviation()
+        self.stds = stds
+
+        stds_df = pd.DataFrame(self.stds)
+
+        script_dir_std = Path(__file__).parent
+        output_file_std = script_dir_std/'std.csv'
+        stds_df.to_csv(output_file_std, index = False)
+
+        self.uncertainty_in_null()
 
     
     def uncertainty_in_null(self) -> list:
         '''
         will hopefully calculate the uncertainty in each null voltage measurement?
         '''
-        # as i will only have one null voltage value for each sensor, might take an average 
-        # value for the sensor data and use that to get the uncertainty?
-        # think this works?
 
         average_sensor_data = [0] * self.number
-        uncertainty_in_nulls = [0] * self.number
+        self.uncertainty_in_nulls = [0] * self.number
+        self.null_uncertainty_df = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
         uncertainty_in_sensor = 0.5
         second = (self.vcc_un/self.vcc)**2
 
         for i in range(self.number):
-            average_sensor_data[i] = self.data[self.data.columns[i+1]].mean()
-            first = (uncertainty_in_sensor/average_sensor_data[i])**2
+            average_sensor_data[i] = self.calibration_df[self.calibration_df.columns[i+1]].mean()
+            first = ((np.sqrt((uncertainty_in_sensor)**2 + (self.stds[i])**2))/average_sensor_data[i])**2
             squared = first + second
             rooted = np.sqrt(squared)
-            uncertainty_in_nulls[i] = rooted * self.null_voltages_averaged[i]
+            self.uncertainty_in_nulls[i] = rooted * self.null_voltages_averaged[i]
 
-        self.uncertainty_in_nulls = uncertainty_in_nulls
+        self.null_uncertainty_df.iloc[0] = self.uncertainty_in_nulls
+
 
     def perform_calibration(self, fields: np.array, fields_uncertainty: float) -> None:
         '''
         uses the null voltages calculated previously and calculates the average
         sensitivity of each sensor using known values of the calibration field strengths
-        sensitivities are calculated in units of mV/T
+        sensitivities are calculated in units of mV/T. This method also calculates the 
+        uncertainty in each sensitivity calculation
         Args:
             fields (np.array): array containing the values of each calibration field strength 
         Returns:
@@ -113,6 +134,7 @@ class Calibration:
         sensitivity_frame = pd.DataFrame(np.zeros((len(fields), self.number)), dtype = float)
         self.sensitivities_averaged_frame = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
         uncertainty_in_sen_frame = pd.DataFrame(np.zeros((len(fields), self.number)), dtype = float)
+        self.averaged_sen_uncertainties = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
 
         print(f'you have {self.delay} seconds until the data starts to be recorded again')
         time.sleep(self.delay)
@@ -128,43 +150,35 @@ class Calibration:
 
             average_sen_data = [0] * self.number
             self.sensitivities = [0] * self.number
-            uncertainty_in_sen = [0] * self.number
+            uncertainty_in_volt = [0] * self.number
+            uncertainty_in_volt_nulls = [0] * self.number
             uncertainty_in_sens = [0] * self.number
     
             second = (self.vcc_un/self.vcc) ** 2
+
             for x in range(self.number):
                 average_sen_data[x] = self.uncertainty_sen_frame[self.uncertainty_sen_frame.columns[x+1]].mean()
-                first = (uncertainty_in_sensor/average_sen_data[x])**2
+                first = ((np.sqrt((uncertainty_in_sensor)**2 + (self.stds[i])**2))/average_sen_data[x])**2
                 rooted = np.sqrt(first + second)
-                average_voltage_value = (self.calibration_data[self.calibration_data.columns[x+1]] * self.vcc / 4095).mean()
-                uncertainty_in_sen[x] = rooted * average_voltage_value
-                # this is the uncertainty in the voltage reading
-                # now need to add the uncertainty for when the null voltage gets subtracted
-                # I can do this using the uncertainties for the null voltages that I calculated earlier
-                uncertainty_in_sens[x] = (np.sqrt(((uncertainty_in_sen[x])**2)+ ((self.uncertainty_in_nulls[x])**2)))**2
-                
 
-                self.calibration_data[self.calibration_data.columns[x+1]] = self.calibration_data[self.calibration_data.columns[x+1]] * self.vcc / 4095
+                average_voltage_value = (self.calibration_data[self.calibration_data.columns[x+1]] * self.vcc / 1023).mean()
+
+                uncertainty_in_volt[x] = rooted * average_voltage_value
+                uncertainty_in_volt_nulls[x] = (np.sqrt(((uncertainty_in_volt[x])**2)+ ((self.uncertainty_in_nulls[x])**2)))
+
+                self.calibration_data[self.calibration_data.columns[x+1]] = self.calibration_data[self.calibration_data.columns[x+1]] * self.vcc / 1023
                 self.calibration_data[self.calibration_data.columns[x+1]] -= self.null_voltages_averaged[x]
 
-
-                third = ((uncertainty_in_sens[x])/(self.calibration_data[self.calibration_data.columns[x+1]].mean()))**2
+                third = ((uncertainty_in_volt_nulls[x])/(self.calibration_data[self.calibration_data.columns[x+1]].mean()))**2
                 fourth = ((fields_uncertainty)/fields[i])**2
-                rooted = np.sqrt(third+fourth)
-
+                rooted2 = np.sqrt(third+fourth)
 
                 self.sensitivities[x] = ((self.calibration_data[self.calibration_data.columns[x+1]].mean()) / fields[i]) * 1000000
-
-                uncertainty_in_sens[x] = rooted * self.sensitivities[x]
-                # OKAY LWOKEY THIS MIGHT ACTUALLY WORK, WILL DEF NEED TO CHECK THIS IN THE MORNING AND MAKE SURE
+                uncertainty_in_sens[x] = rooted2 * self.sensitivities[x]
 
             sensitivity_frame.iloc[i] = self.sensitivities
-            uncertainty_in_sen_frame.iloc[i] = uncertainty_in_sens[x]
-
-            # so i should have a dataframe with however many rows as fields are inputted, with as many columns as sensors there are
-            # so each entry is gonna be the uncertainty of that sensor in that field? I HOPE
-            # then for each sensor, will take an average value of the uncertainties in each field as it should not be 
-            # field dependent.
+            
+            uncertainty_in_sen_frame.iloc[i] = uncertainty_in_sens
 
             if i+1 == how_many_fields:
                 print('data recording complete...')
@@ -178,10 +192,9 @@ class Calibration:
 
         for i in range(self.number):
             uncertainties_sensitivity_averaged[i] = uncertainty_in_sen_frame[uncertainty_in_sen_frame.columns[i]].mean()
-            # okay so these will save as the uncertainties but need to finish the calculation above properly
-            # did not finish the uncertainty propagation 
 
         self.sensitivities_averaged_frame.iloc[0] = sensitivities_averaged
+        self.averaged_sen_uncertainties.iloc[0] = uncertainties_sensitivity_averaged
 
         self.make_callable_csv()
 
@@ -189,14 +202,16 @@ class Calibration:
     def make_callable_csv(self) -> None:
         '''
         combines the two data frames containing null voltages and sensitivities for 
-        each sensor into one to convert that to a csv. This is done so that the values
-        can be accessed during the actual data recording by calling on the csv
+        each sensor and the two dataframes containing the uncertainties for the
+        null voltage and sensitivities into one to convert that to a csv. 
+        This is done so that the values can be accessed during the actual data 
+        recording by reading from the csv
         Args:
             None
         Returns:
             None
         '''
-        combined_df = pd.concat([self.average_null, self.sensitivities_averaged_frame])
+        combined_df = pd.concat([self.average_null, self.sensitivities_averaged_frame, self.null_uncertainty_df, self.averaged_sen_uncertainties])
         print(combined_df)
         script_dir = Path(__file__).parent
         output_file = script_dir/'combined-data.csv'

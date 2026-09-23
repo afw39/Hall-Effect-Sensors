@@ -20,9 +20,10 @@ def read_data(port: str, filename: str, samples: int = 200) -> pd.DataFrame:
     csv_file = script_dir / filename
 
     with open(csv_file, 'w', newline = '', encoding = 'utf-8') as csvfile:
-        writer = csv.writer(csvfile)    
-        header = ser.readline().decode().strip()
-        writer.writerow(header.split(","))
+        writer = csv.writer(csvfile)
+        raw = ser.readline().decode("utf-8", errors="ignore").strip()
+        print(raw)
+        writer.writerow(raw.split(","))
 
         samples_taken = 0
 

@@ -2,7 +2,6 @@
 
 import matplotlib.pyplot as plt
 from read import read_data
-import pandas as pd
 
 class StandardDeviation:
     '''
@@ -28,7 +27,6 @@ class StandardDeviation:
         self.data = None
 
         self.data = read_data(port, filename, samples)
-        self.run()
 
     def calc_standard_deviation(self) -> list:
         '''
@@ -43,8 +41,6 @@ class StandardDeviation:
         for i in range(self.number):
             cols = self.data[self.data.columns[i+1]]
             std[i] = cols.std(ddof=1)
-
-        print(std)
 
         return std
 
@@ -66,30 +62,3 @@ class StandardDeviation:
 
         plt.tight_layout()
         plt.show()
-
-    def run(self) -> None:
-        '''
-        runs the other methods
-        Args:
-            None
-        Returns:
-            None
-        '''
-        self.calc_standard_deviation()
-        self.plot()
-
-StandardDeviation(number = 8, port = '/dev/ttyACM0',
-                  filename = 'standard-deviation.csv', samples = 4000)
-
-
-
-# gonna try do some uncertainties here, will end up just putting this into the conversion.py
-# for the standard deviation one i might just add a parameter for sd and if sd=yes then it does
-# the noise analysis and histograms and what not but i'll see
-# maybe should add to the histogram plot like a print off the average standard deviation and 
-# what the uncertainty is or something?  idk
-
-# steps for finding the uncertainty in the field
-# need to do propagation of uncertainties for this
-
-def uncertainty_in_null(dataframe: pd.DataFrame, vcc: float, vcc_un: float, null_voltages )
