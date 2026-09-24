@@ -58,10 +58,11 @@ class Calibration:
         self.averaged_sen_uncertainties = None
         self.null_uncertainty_df = None
         self.stds = None
+        self.fields = None
+        self.uncertainty_in_fields = None
 
-        self.find_null_voltage()
 
-    def convert_currents(self) -> None:
+    def convert_currents(self, currents: np.array, current_uncertainties: float, number_of_turns: int, radius_of_coils: float) -> None:
         '''
         method to convert the input current for each calibration field into the expected
         field strength to be used in the calibration field values
@@ -71,28 +72,21 @@ class Calibration:
                 measurements, applied to all the current values
             number_of_turns (int): how many turns are present in the coils
             radius_of_coils (float): radius of the helmholtz coils
-            
         Returns:
             None
-
-        Equation:
-        B0 = (0.8)**1.5 * (mu_0 * number of turns * input current) / (radius of coils)
-
-        so will have to take these as the inputs lowkey, might take all the inputs here
-        for the calibration (instead of taking the fields and field uncertainty in the
-        perform calibration method), so will take all the calibration parameters in one 
-        method and go from there. need to also calculate the uncertainty in the field from 
-        this, will have to do another uncertainty propagation
-
-        the uncertainty in the number of turns/radius of coils will be a fixed value so
-        don't need to take that as an input, can just define that in the method, hopefully
-        the only variable in here that will need to be a self. will be the final uncertainty
-        in the fields array/variable
-
-        do this after lunch tho
-
-
         '''
+
+        how_many_currents = len(currents)
+        self.fields = [0] * how_many_currents
+        self.uncertainty_in_fields = [0] * how_many_currents
+
+        for i in range (how_many_currents):
+            self.fields[i] = (0.8**1.5) * (4*np.pi*(10**(-7))) * (number_of_turns * currents[i]) / radius_of_coils
+
+            square = (((current_uncertainties / currents[i])**2) + ((0.5*10**(-3) / radius_of_coils)**2))
+            self.uncertainty_in_fields[i] = np.sqrt(square) * self.fields[i]
+
+        self.find_null_voltage()
 
 
     def find_null_voltage(self) -> None:
@@ -110,10 +104,8 @@ class Calibration:
         for i in range(3):
             self.calibration_df = read_data(self.port,self.filename, self.samples)
             self.null_values = [0] * self.number
-            null = [0] * self.number
             for x in range(self.number):
-                null[x] = (self.calibration_df[self.calibration_df.columns[x+1]] * self.vcc / 1023).mean()
-                self.null_values[x] = (null[x])
+                self.null_values[x] = (self.calibration_df[self.calibration_df.columns[x+1]] * self.vcc / 1023).mean()
 
             null_frame.iloc[i] = self.null_values
             if i+1 < 3:
@@ -175,27 +167,29 @@ class Calibration:
 
         self.null_uncertainty_df.iloc[0] = self.uncertainty_in_nulls
 
+        self.perform_calibration()
 
-    def perform_calibration(self, fields: np.array, fields_uncertainty: float) -> None:
+
+    def perform_calibration(self) -> None:
         '''
         uses the null voltages calculated previously and calculates the average
         sensitivity of each sensor using known values of the calibration field strengths
         sensitivities are calculated in units of mV/T. This method also calculates the 
         uncertainty in each sensitivity calculation for each sensor and saves them 
         Args:
-            fields (np.array): array containing the values of each calibration field strength 
+            None
         Returns:
             None 
         '''
-        sensitivity_frame = pd.DataFrame(np.zeros((len(fields), self.number)), dtype = float)
+        sensitivity_frame = pd.DataFrame(np.zeros((len(self.fields), self.number)), dtype = float)
         self.sensitivities_averaged_frame = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
-        uncertainty_in_sen_frame = pd.DataFrame(np.zeros((len(fields), self.number)), dtype = float)
+        uncertainty_in_sen_frame = pd.DataFrame(np.zeros((len(self.fields), self.number)), dtype = float)
         self.averaged_sen_uncertainties = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
 
         print(f'you have {self.delay} seconds until the data starts to be recorded again')
         time.sleep(self.delay)
    
-        how_many_fields = len(fields)
+        how_many_fields = len(self.fields)
         sensitivities_averaged = np.empty(self.number)
         uncertainty_in_sensor = 0.5
         uncertainties_sensitivity_averaged = [0] * self.number
@@ -226,10 +220,10 @@ class Calibration:
                 self.calibration_data[self.calibration_data.columns[x+1]] -= self.null_voltages_averaged[x]
 
                 third = ((uncertainty_in_volt_nulls[x])/(self.calibration_data[self.calibration_data.columns[x+1]].mean()))**2
-                fourth = ((fields_uncertainty)/fields[i])**2
+                fourth = ((self.uncertainty_in_fields[i])/self.fields[i])**2
                 rooted2 = np.sqrt(third+fourth)
 
-                self.sensitivities[x] = ((self.calibration_data[self.calibration_data.columns[x+1]].mean()) / fields[i]) * 1000000
+                self.sensitivities[x] = ((self.calibration_data[self.calibration_data.columns[x+1]].mean()) / self.fields[i]) * 1000
                 uncertainty_in_sens[x] = rooted2 * self.sensitivities[x]
 
             sensitivity_frame.iloc[i] = self.sensitivities
