@@ -21,13 +21,17 @@ class Conversion:
     
     Methods:
         get_params() -> None: 
-            reads the csv file where the calibration parameters are stored and saves them
-            as arrays so that they can be used in this class for the conversion
+            reads the csv file where the calibration parameters (null voltages/sensitivity/uncertainties) are stored 
+            and saves them as arrays so that they can be used in this class for the conversion
         into_voltage() -> None: 
             multiplies the numbers outputted by the sensors to convert them into voltages,
-            and subtracts the null voltage for each sensor off of that sensors readings
+            and subtracts the null voltage for each sensor off of that sensors readings. Calculates the 
+            uncertainty in the voltage at this stage for each sensor
         field_strengths() -> pd.DataFrame: 
-            converts the voltages into field strengths by dividing by the sensitivity
+            converts the voltages into field strengths by dividing by the sensitivity and calculates the
+            associated uncertainty with each field measurement
+        display_uncertainty() -> None: 
+            uses the calculated fractional uncertainty and applies it to each value of the field
         run() -> None: 
             method for running the other methods in the class
     '''
@@ -53,7 +57,8 @@ class Conversion:
     def get_params(self) -> None:
         '''
         reads the csv in containing the sensitivities and null voltages, converts them back to arrays
-        to be used in the next methods
+        to be used in the next methods. Also reads in the values calculated previously for the 
+        uncertainties in each sensors measurement of the null voltage and sensitivity
         Args: 
             None
         Returns:
@@ -79,7 +84,8 @@ class Conversion:
     def into_voltage(self) -> None:
         '''
         method for converting the numeric outputs from the sensors into voltages
-        the null voltages for each sensor are also subtracted from the data here
+        the null voltages for each sensor are also subtracted from the data here. 
+        Calculates the uncertainty associated with each voltage
         Args:
             None
         Returns:
@@ -108,7 +114,8 @@ class Conversion:
     def field_strengths(self) -> pd.DataFrame:
         '''
         method for converting the voltages into field strengths using the calculated sensitivity
-        values for each sensor from the calibration steps. field strengths are calculated in mT
+        values for each sensor from the calibration steps. field strengths are calculated in mT.
+        calculates the uncertainty of each field strength measurement
         Args:
             None
         Returns:
@@ -139,11 +146,16 @@ class Conversion:
 
         return self.data
 
-    def display_uncertainty(self):
+    def display_uncertainty(self) -> None:
         '''
-        docstring
+        converts the relative uncertainties for the field strengths into absolute uncertainties and 
+        displays them in the output
+        Args:
+            None
+        Returns:
+            None
         '''
-        #print(self.data.columns)
+
         field_display = self.data.copy()
         relative_uncertainties = [0] * self.number
 
