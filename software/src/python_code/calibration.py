@@ -61,6 +61,40 @@ class Calibration:
 
         self.find_null_voltage()
 
+    def convert_currents(self) -> None:
+        '''
+        method to convert the input current for each calibration field into the expected
+        field strength to be used in the calibration field values
+        Args:
+            currents (np.array): the list on input currents for each calibration field
+            current_uncertainties (float): absolute uncertainty in the current
+                measurements, applied to all the current values
+            number_of_turns (int): how many turns are present in the coils
+            radius_of_coils (float): radius of the helmholtz coils
+            
+        Returns:
+            None
+
+        Equation:
+        B0 = (0.8)**1.5 * (mu_0 * number of turns * input current) / (radius of coils)
+
+        so will have to take these as the inputs lowkey, might take all the inputs here
+        for the calibration (instead of taking the fields and field uncertainty in the
+        perform calibration method), so will take all the calibration parameters in one 
+        method and go from there. need to also calculate the uncertainty in the field from 
+        this, will have to do another uncertainty propagation
+
+        the uncertainty in the number of turns/radius of coils will be a fixed value so
+        don't need to take that as an input, can just define that in the method, hopefully
+        the only variable in here that will need to be a self. will be the final uncertainty
+        in the fields array/variable
+
+        do this after lunch tho
+
+
+        '''
+
+
     def find_null_voltage(self) -> None:
         '''
         method that computes the null voltage for each sensor in the array,
