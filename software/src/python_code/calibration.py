@@ -16,14 +16,25 @@ class Calibration:
         port (str): name of the computer port the arduino is linked to
         vcc (float): value of the VCC output from the arduino
         filename (str): csv filename the data is stored in
+        vcc_un (float): uncertainty in the measurement of the VCC
         samples (int): how many data samples each reading takes
         delay (int): the time between calibration recordings 
 
     Methods:
         find_null_voltage() -> pd.DataFrame:
             computes and stores null voltages for each sensor in the array
+        get_stds() -> None:
+            runs the StandardDeviation class and gets those values to use
+            in the sensor uncertainties
+        uncertainty_in_null() -> list:
+            calculates the uncertainty in the values for the null voltage
+            for each sensor
         perform_calibration() -> pd.DataFrame:
-            computes and stores the average value for sensitivity for each sensor
+            computes and stores the average value for sensitivity for each sensor.
+            calculates the uncertainty in sensitivity for each sensor in each field
+        make_callable_csv() -> None:
+            saves the average value of sensitivity, null voltage, and the 
+            uncertainties in both to a csv to be read from in conversion.py
     '''
 
     def __init__(self, number: int, port: str, vcc: float,
@@ -84,7 +95,13 @@ class Calibration:
 
     def get_stds(self) -> None:
         '''
-        docstring
+        runs the `StandardDeviation` class from the uncertainty.py script and saves the value
+        for the standard deviation for each sensor, this is later used when calculating
+        the total uncertainty in the sensor readings
+        Args:
+            None
+        Returns:
+            None 
         '''
         x = StandardDeviation(number = self.number, port = self.port, filename = 'standard-deviation.csv', samples = 100)
         stds = x.calc_standard_deviation()
@@ -101,7 +118,12 @@ class Calibration:
     
     def uncertainty_in_null(self) -> list:
         '''
-        will hopefully calculate the uncertainty in each null voltage measurement?
+        calculates the uncertainty in the null voltage measurement and saves that as
+        a row in a dataframe
+        Args:
+            None
+        Returns:
+            None
         '''
 
         average_sensor_data = [0] * self.number
@@ -125,7 +147,7 @@ class Calibration:
         uses the null voltages calculated previously and calculates the average
         sensitivity of each sensor using known values of the calibration field strengths
         sensitivities are calculated in units of mV/T. This method also calculates the 
-        uncertainty in each sensitivity calculation
+        uncertainty in each sensitivity calculation for each sensor and saves them 
         Args:
             fields (np.array): array containing the values of each calibration field strength 
         Returns:
