@@ -183,3 +183,4 @@ class Conversion:
         self.into_voltage()
         self.field_strengths()
         self.display_uncertainty()
+        

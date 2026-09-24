@@ -103,7 +103,7 @@ class Calibration:
         Returns:
             None 
         '''
-        x = StandardDeviation(number = self.number, port = self.port, filename = 'standard-deviation.csv', samples = 100)
+        x = StandardDeviation(number = self.number, port = self.port, filename = 'standard-deviation.csv', samples = 1000)
         stds = x.calc_standard_deviation()
         self.stds = stds
 
