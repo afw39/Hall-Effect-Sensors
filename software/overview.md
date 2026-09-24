@@ -1,7 +1,9 @@
+---------------------------------------------------------------------------------------------------------------
 # Software Overview
 
 The software in this project is responsible for taking the data collected by the hall effect sensors and converting it into useful magnetic field strength data. It comprises of arduino software for data collection and python software for converting the raw data into useful data. 
 
+----------------------------------------------------------------------------------------------------------------
 ## Structure of software directory
 ```
 software/
@@ -16,11 +18,12 @@ software/
 |           |---- conversion_script.py  # where the conversion is run from
 |           |---- read.py            # contains method for reading in data from arduino into csv, imported and used in many files
 ```
-
+----------------------------------------------------------------------------------------------------------------
 ## Arduino code
 This is pretty simple software. Uses the serial monitor to print a time stamp and also the sensor reading for however many sensors is being used. Very customisable and scalable for any number of sensors, will simply create a new column in the code. This code below is for 2 sensors, however can be used for any number of sensors up to and including 8 sensors (as that is how many analogue pins the Arduino has)
 <img width="1076" height="706" alt="image" src="https://github.com/user-attachments/assets/8791c006-0acb-45ad-8cb5-29af59010a5b" />
 
+----------------------------------------------------------------------------------------------------------------
 ## Python code
 libraries used: pandas, numpy, matplotlib, serial, csv, pathlib, time   
 The python code is where most of the data processing will occur, when it recieves the data from the arduino, it reads it and saves it as a csv. This is then converted into a pandas dataframe for easier use. 
@@ -39,6 +42,7 @@ The code is structured so that there are two scripts designated to both the sens
 
 The null voltages and sensitivities will only need to be found once, at the beginning, during the calibration steps, however the null voltages must be found first and used to calculate the sensitivities. Both these properties need to be used and included in calculations for every data conversion process forward. They are saved first as a data frame and then saved together in a csv file which is read in for data collection.
 
+---------------------------------------------------------------------------------------------------------------
 ### Key classes and methods:
 #### Classes: 
 scripts contains a class for sensor calibration and data conversion
