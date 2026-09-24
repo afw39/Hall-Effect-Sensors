@@ -90,7 +90,7 @@ class Conversion:
         self.voltage_uncertainty = [0] * self.number
 
         for i in range(self.number):
-            self.sensor_uncertainty = np.sqrt(0.25 + (self.stds[self.stds.iloc[i, 0]]))
+            self.sensor_uncertainty = np.sqrt(0.25 + self.stds.iloc[i, 0])
             average_reading = self.data[self.data.columns[i+1]].mean()
 
             self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / 1023
@@ -103,7 +103,7 @@ class Conversion:
 
             self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - self.nulls[i]
 
-            self.voltage_uncertainty = np.sqrt((self.nulls_uncertainties[i])**2 + (v1_uncertainty)**2)
+            self.voltage_uncertainty[i] = np.sqrt((self.nulls_uncertainties[i])**2 + (v1_uncertainty)**2)
 
     def field_strengths(self) -> pd.DataFrame:
         '''
@@ -127,9 +127,7 @@ class Conversion:
 
             sensitivity = (self.sensitivities_uncertainties[i]/self.sensitivities.mean())**2
             self.field_uncertainty[i] =  np.sqrt((sensitivity + voltage))
-            # this is kind of the percentage uncertainty of the reading, need to multiply this by 
-            # the actual field measurement for the absolute uncertainty in each reading
-
+    
             if i == 0:
                 self.data.rename(columns={self.data.columns[0]: 'time/s'}, inplace = True)
 
@@ -145,15 +143,16 @@ class Conversion:
         '''
         docstring
         '''
-
+        #print(self.data.columns)
         field_display = self.data.copy()
+        relative_uncertainties = [0] * self.number
 
         for i in range(self.number):
             column = field_display.columns[i+1]
 
-            relative_uncertainties = self.field_uncertainty[i]
+            relative_uncertainties[i] = self.field_uncertainty[i]
 
-            field_display[column] = field_display[column].apply(lambda x: f'{x:.3f} ± {abs(x*relative_uncertainties):.3f}')
+            field_display[column] = field_display[column].apply(lambda x: f'{x:.3f} ± {abs(x*relative_uncertainties[i]):.3f}')
 
         print(field_display)
 
@@ -169,7 +168,6 @@ class Conversion:
         '''
 
         self.get_params()
-        print(self.nulls)
         self.into_voltage()
         self.field_strengths()
         self.display_uncertainty()
