@@ -18,9 +18,7 @@ class StandardDeviation:
             calculates the standard deviation of each column of the dataframe which corresponds
             to each sensors set of data
         plot() -> None:
-            plots the distribution of data points for each sensor to visualise the noise
-        run() -> None:
-            runs the other two methods in the class
+            plots the histogram of noise levels for each sensor
     '''
     def __init__(self, number: int, port: str, filename: str, samples: int):
         self.number = number
@@ -62,4 +60,3 @@ class StandardDeviation:
 
         plt.tight_layout()
         plt.show()
-        
