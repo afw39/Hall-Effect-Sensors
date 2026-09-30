@@ -37,7 +37,7 @@ The 6 ADCs that will be used to start with can all go in different I2C ports, bu
 
 #### Connecting the sensors to the ADCs 
 
-Each sensor requires a capacitor geographically as close as possible, and 3 wires so will be a wiring nightmare if the wires aren’t managed correctly. The wires attaching to the sensors will need to be soldiered on as the sensors won’t be sat on a breadboard and the capacitor need to be soldiered directly across the pins.   
+Each sensor requires a capacitor physically as close as possible, and 3 wires so will be a wiring nightmare if the wires aren’t managed correctly. The wires attaching to the sensors will need to be soldiered on as the sensors won’t be sat on a breadboard and the capacitor need to be soldiered directly across the pins.   
 
 On the ADC, there are pins for each analogue input that can be connected to via female Dupont wires. The idea currently is that all these pins will be connected to a breadboard using female to male jumper wires and then the sensors can be connected to the breadboard from there. Multiple ADCs can connect to the same breadboard as it is just an intermediate for connecting the sensors.  
 
