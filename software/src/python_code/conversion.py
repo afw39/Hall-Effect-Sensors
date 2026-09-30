@@ -36,11 +36,12 @@ class Conversion:
             method for running the other methods in the class
     '''
 
-    def __init__(self, port: str, filename: str, number: int, vcc: float, samples: int = 200):
+    def __init__(self, port: str, filename: str, number: int, vcc: float, bits: int, samples: int = 200):
         self.port = port
         self.filename = filename
         self.number = number
         self.vcc = vcc
+        self.bits = (2**bits)-1
         self.samples = samples
         self.nulls = None
         self.sensitivities = None
@@ -64,21 +65,35 @@ class Conversion:
         Returns:
             None
         '''
-
-        csv_path = Path(__file__).resolve().with_name("combined-data.csv")
-        csv_path_std = Path(__file__).resolve().with_name('std.csv')
-
-        dataframe = pd.read_csv(csv_path)
-        self.stds = pd.read_csv(csv_path_std)
+        # right lets get the null voltages in first
 
         self.nulls = np.empty(self.number)
         self.sensitivities = np.empty(self.number)
         self.nulls_uncertainties = np.empty(self.number)
         self.sensitivities_uncertainties = np.empty(self.number)
-        self.nulls = dataframe.iloc[0].to_numpy()
-        self.sensitivities = dataframe.iloc[1].to_numpy()
-        self.nulls_uncertainties = dataframe.iloc[2].to_numpy()
-        self.sensitivities_uncertainties = dataframe.iloc[3].to_numpy()
+
+
+        nulls_path = Path(__file__).resolve().with_name('nulls.csv')
+        nulls_and_uncertainties = pd.read_csv(nulls_path)
+        self.nulls = nulls_and_uncertainties.iloc[0].to_numpy()
+        print(self.nulls)
+        self.nulls_uncertainties = nulls_and_uncertainties.iloc[1].to_numpy()
+
+        sens_path = Path(__file__).resolve().with_name('sens.csv')
+        sens_df = pd.read_csv(sens_path)
+        for i in range(self.number):
+            self.sensitivities[i] = sens_df[sens_df.columns[i]].mean()
+
+        # should be taking an average of the values for each sensor (if use three calib
+        # fields there should be 3 values being averaged)
+
+        sens_uncertainties_path = Path(__file__).resolve().with_name('uncertainties.csv')
+        uncertainties_df = pd.read_csv(sens_uncertainties_path)
+        for i in range(self.number):
+            self.sensitivities_uncertainties[i] = uncertainties_df[uncertainties_df.columns[i]].mean()
+
+        std_path = Path(__file__).resolve().with_name('std.csv')
+        self.stds = pd.read_csv(std_path)
 
 
     def into_voltage(self) -> None:
@@ -99,7 +114,7 @@ class Conversion:
             self.sensor_uncertainty = np.sqrt(0.25 + self.stds.iloc[i, 0])
             average_reading = self.data[self.data.columns[i+1]].mean()
 
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / 1023
+            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / self.bits
 
             average_voltage_1 = self.data[self.data.columns[i+1]].mean()
             readings = self.sensor_uncertainty / average_reading
@@ -157,14 +172,13 @@ class Conversion:
         '''
 
         field_display = self.data.copy()
-        relative_uncertainties = [0] * self.number
 
         for i in range(self.number):
             column = field_display.columns[i+1]
 
-            relative_uncertainties[i] = self.field_uncertainty[i]
+            relative_uncertainties = self.field_uncertainty[i]
 
-            field_display[column] = field_display[column].apply(lambda x: f'{x:.3f} ± {abs(x*relative_uncertainties[i]):.3f}')
+            field_display[column] = field_display[column].apply(lambda x: f'{x:.3f} ± {abs(x*relative_uncertainties):.3f}')
 
         print(field_display)
 

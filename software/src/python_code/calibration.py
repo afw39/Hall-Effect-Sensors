@@ -75,6 +75,10 @@ class Calibration:
         Returns:
             None
         '''
+        # going to use this as a check but will need to input the fields after they have been 
+        # measured so i think i need the calibration (like each field) to be in separate functions
+        # or i think i am going to make one that has like you an run the function with different parameters 
+        # for each value of the field and can run it for how many fields there are
 
         how_many_currents = len(currents)
         self.fields = [0] * how_many_currents
