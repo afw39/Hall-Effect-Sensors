@@ -51,14 +51,21 @@ class Sensitivity:
         self.nulls_uncertainties = parameters_df.iloc[1].to_numpy()
         self.stds = stds_df.iloc[0].to_numpy()
 
-        self.current_comparison()
+    def current_comparison(self, current: float, current_uncertainty: float, number_of_turns: int, radius_of_coils: float) -> None:
+        '''
+        want to take the inputs for current through the coils, number of turns in the coil
+        and the radius of the coils to calculate what the field should be and then can compare 
+        that to the measured value
+        '''
 
-    def current_comparison(self) -> None:
-        '''
-        docstring
-        '''
+        self.field = (0.8**1.5) * (4*np.pi*(10**(-7))) * (number_of_turns * current) / radius_of_coils
+
+        square = (((current_uncertainty / current)**2) + ((0.5*10**(-3) / radius_of_coils)**2))
+        self.field_uncertainty = np.sqrt(square) * self.field
 
         self.perform_calibration()
+
+        return self.field
 
     def perform_calibration(self) -> None:
         '''

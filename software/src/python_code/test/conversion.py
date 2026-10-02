@@ -177,7 +177,6 @@ class Conversion:
 
         print(field_display)
 
-
     def run(self):
         '''
         method for running the methods within this class. This method is called in the 
