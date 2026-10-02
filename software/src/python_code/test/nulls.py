@@ -26,6 +26,8 @@ class Nulls:
         self.null_frame = None
         self.std_frame = None
 
+        self.find_params()
+
     def find_params(self) -> None:
         '''
         calculates the null voltage of each sensor and the standrad deviation of each sensor.
@@ -43,6 +45,8 @@ class Nulls:
             self.null_values[i] = (self.calibration_df[self.calibration_df.columns[i+1]]*self.vcc/self.levels).mean()
             self.stds[i] = (self.calibration_df[self.calibration_df.columns[i+1]]).std(ddof=1)
 
+        self.find_uncertainties_in_null()
+
     def find_uncertainties_in_null(self)-> None:
         '''
         ds
@@ -56,6 +60,8 @@ class Nulls:
             uncertainty_in_reading = ((np.sqrt((sensor_uncertainty)**2+(self.stds[i])**2))/average_sensor_reading)**2
             rooted = np.sqrt(uncertainty_in_reading+uncertainty_in_vcc)
             self.uncertainties_in_null[i] = (rooted*self.null_values[i])
+
+        self.save_values()
 
     def save_values(self) -> None:
         '''

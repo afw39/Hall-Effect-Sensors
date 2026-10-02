@@ -20,7 +20,6 @@ class Sensitivity:
         self.samples = samples
         self.field = calibration_field
         self.field_uncertainty = field_uncertainty
-        # need to add inputs for current/turns/radius to compare expected and actual fields
 
         self.calibration_data = None
         self.nulls = None
@@ -30,6 +29,8 @@ class Sensitivity:
         self.sens_uncertainties_frame = None
         self.sensitivities = None
         self.uncertainty_in_sens = None
+
+        self.get_parameters()
 
     def get_parameters(self) -> None:
         '''
@@ -50,10 +51,14 @@ class Sensitivity:
         self.nulls_uncertainties = parameters_df.iloc[1].to_numpy()
         self.stds = stds_df.iloc[0].to_numpy()
 
+        self.current_comparison()
+
     def current_comparison(self) -> None:
         '''
         docstring
         '''
+
+        self.perform_calibration()
 
     def perform_calibration(self) -> None:
         '''
@@ -91,7 +96,7 @@ class Sensitivity:
             self.sensitivities[x] = ((self.calibration_data[self.calibration_data.columns[x+1]].mean())/self.field)*1000
             self.uncertainty_in_sens[x] = rooted2*self.sensitivities[x]
 
-        # so as a result here I will need two csvs? each time the script is run, saves a new row
+        self.saves_sens()
 
     def saves_sens(self) -> None:
         '''
