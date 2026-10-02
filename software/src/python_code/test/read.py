@@ -35,7 +35,7 @@ def read_data(port: str, filename: str, samples: int = 200) -> pd.DataFrame:
                 print(values)
 
                 samples_taken += 1
-    # closes the file
+
     ser.close()
 
     df = pd.read_csv(csv_file)

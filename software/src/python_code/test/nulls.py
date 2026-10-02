@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from read import read_data
 
-
 class Nulls:
     '''
     ds
@@ -79,6 +78,3 @@ class Nulls:
 
         self.null_frame.to_csv(output_file_nulls, index = False)
         self.std_frame.to_csv(output_file_stds, index = False)
-
-# okay can now access the null voltages in the first row of this csv
-# and the uncertainties in the second row of this csv

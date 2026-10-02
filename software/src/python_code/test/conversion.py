@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from read import read_data
 
-
 class Conversion:
     '''
     class for converting the raw data read from the hall effect sensors and the Arduino into useful data 
@@ -21,8 +20,8 @@ class Conversion:
     
     Methods:
         get_params() -> None: 
-            reads the csv file where the calibration parameters (null voltages/sensitivity/uncertainties) are stored 
-            and saves them as arrays so that they can be used in this class for the conversion
+            reads the csv file where the calibration parameters (null voltages/sensitivity/uncertainties)
+            are stored and saves them as arrays so that they can be used in this class for the conversion
         into_voltage() -> None: 
             multiplies the numbers outputted by the sensors to convert them into voltages,
             and subtracts the null voltage for each sensor off of that sensors readings. Calculates the 
