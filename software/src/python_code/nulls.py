@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from read import read_data
+from python_code.read import read_data
 
 class Nulls:
     '''
