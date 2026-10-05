@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------------------
-# Software Overview
+# Software Overview - super out of date!!!
 
 The software in this project is responsible for taking the data collected by the hall effect sensors and converting it into useful magnetic field strength data. It comprises of arduino software for data collection and python software for converting the raw data into useful data. 
 
