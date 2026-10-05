@@ -1,3 +1,5 @@
+'''contains the class that converts the sensor output into field strengths and uncertanties'''
+
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -7,7 +9,7 @@ class Conversion:
     '''
     class for converting the raw data read from the hall effect sensors and the Arduino into useful data 
     (field strengths for each sensor and time stamps). Uses the null voltage and sensitivity values 
-    calulated during the calibration steps.
+    calulated during the calibration steps. Calculates the uncertainty in each field measurement
 
     Attributes:
         port (str): the port of the computer that the arduino/hall effect sensor array is plugged in to
@@ -16,11 +18,12 @@ class Conversion:
         number (int): the number of sensors in the array - provides information for how many iterations 
             are required
         vcc (float): the VCC (voltage output) of the arduino into the sensors
+        vcc_un (float): the associated uncertainty with the value of the VCC
         samples (int): the number of data samples taken 
     
     Methods:
         get_params() -> None: 
-            reads the csv file where the calibration parameters (null voltages/sensitivity/uncertainties)
+            reads the csvs file where the calibration parameters (null voltages/sensitivity/uncertainties)
             are stored and saves them as arrays so that they can be used in this class for the conversion
         into_voltage() -> None: 
             multiplies the numbers outputted by the sensors to convert them into voltages,
@@ -28,9 +31,10 @@ class Conversion:
             uncertainty in the voltage at this stage for each sensor
         field_strengths() -> pd.DataFrame: 
             converts the voltages into field strengths by dividing by the sensitivity and calculates the
-            associated uncertainty with each field measurement
+            associated uncertainty with each field measurement. renames the dataframe headings
         display_uncertainty() -> None: 
-            uses the calculated fractional uncertainty and applies it to each value of the field
+            uses the calculated fractional uncertainty and applies it to each value of the field, displays
+            them in the output dataframe
         run() -> None: 
             method for running the other methods in the class
     '''
@@ -58,9 +62,9 @@ class Conversion:
 
     def get_params(self) -> None:
         '''
-        reads the csv in containing the sensitivities and null voltages, converts them back to arrays
-        to be used in the next methods. Also reads in the values calculated previously for the 
-        uncertainties in each sensors measurement of the null voltage and sensitivity
+        initialises variables for null voltages & uncertainties, for sensitivities and
+        uncertainties and for the standard deviations. Imports the data for each one 
+        from the csv files where they are stored and saves them
         Args: 
             None
         Returns:
@@ -125,7 +129,7 @@ class Conversion:
 
                 self.voltage_uncertainty[i] = np.sqrt((self.nulls_uncertainties[i])**2 + (v1_uncertainty)**2)
 
-    def field_strengths(self) -> pd.DataFrame:
+    def field_strengths(self) -> None:
         '''
         method for converting the voltages into field strengths using the calculated sensitivity
         values for each sensor from the calibration steps. field strengths are calculated in mT.
@@ -133,8 +137,7 @@ class Conversion:
         Args:
             None
         Returns:
-            self.data (pd.DataFrame): data frame that now contains the time stamp and the field strengths 
-            felt by each sensor in the array
+            None
         '''
 
         self.field_uncertainty = [0] * self.number
@@ -155,8 +158,6 @@ class Conversion:
         self.data[self.data.columns[0]] = self.data[self.data.columns[0]].astype(float)
 
         self.data['time/s'] = self.data['time/s']/1000
-
-        return self.data
 
     def display_uncertainty(self) -> None:
         '''

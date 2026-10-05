@@ -1,3 +1,5 @@
+'''reads the data in from the Arduino'''
+
 import csv
 from pathlib import Path
 import serial

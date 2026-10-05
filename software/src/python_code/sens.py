@@ -1,3 +1,7 @@
+''' second part of the calibration code, along with the nulls.py. This script calculates
+the sensitivity (scale factor between voltage and field strength) of each sensor and 
+the associates uncertainties with each calculation'''
+
 from pathlib import Path
 from csv import writer
 import numpy as np
@@ -6,7 +10,42 @@ from read import read_data
 
 class Sensitivity:
     '''
-    docstring
+    class for calculating the sensitivity of each sensor and its uncertainty. takes input
+    of a known field value and scales up the outputted voltage correctly. Also has a method
+    for comparing the field created by the hemlholtz coil as measured by the magnetic field
+    probe and what field should be produced based on the current being fed through the coil,
+    the radius of the coils and the number of turns present in the coil. saves the values
+    for sensitivity for each sensor to be used as scale factors in data conversion.
+
+    Attributes:
+        number (int): the number of sensors present in the sensor array
+        port (str): the computer port that the Arduino is connected to (which port needs to be
+            read from)
+        vcc (float): the value of the VCC (input voltage) from the Arduino/external power supply
+        vcc_un (float): the associated uncertainty with the value obtained for the VCC
+        filename (str): the filename where the data from the sensors is read into
+        bits (int): the bit depth of the analogue-digital converter (ADC)
+        samples (int): the number of samples taken and used for these calculations
+        calibration_field (float): the value of the field that the sensor array is being
+            calibrated against
+        field_uncertainty (float): the uncertainty in the measurement of the field that the sensors
+            are calibrated against
+        
+    Methods:
+        get_parameters() -> None:
+            imports and saves the parameters found during calibration (null voltages
+            and uncertainties for each sensor in the array) found so far.
+        current_comparison(current: float, current_uncertainty: float, number_of_turns: int,
+        radius_of_coils: float) -> None:
+            calculates what the theoretical field value should be based on the current sent through
+            the coil, the radius of the coil and the number of turns in the coil
+        perform_calibration() -> None:
+            calculates the scale factor required to get from the voltage value outputted into the
+            value of the known calibration field with its uncertainty
+        saves_sens() -> None:
+            saves the values calculated for the sensitivity of each sensor and the uncertainty in
+            sensitivity for each sensor in csv files so that they can be accessed later. the csv
+            files are appended each time the class is run (for different calibration field values)
     '''
 
     def __init__(self, number: int, port: str, vcc: float, vcc_un: float, filename: str,
@@ -34,7 +73,13 @@ class Sensitivity:
 
     def get_parameters(self) -> None:
         '''
-        ds
+        gets the parameters calculated in the first part of the calibration
+        software and stores them as variables that can be used in the
+        rest of the class
+        Args:
+            None
+        Returns:
+            None
         '''
 
         self.nulls = np.empty(self.number)
@@ -53,23 +98,38 @@ class Sensitivity:
 
     def current_comparison(self, current: float, current_uncertainty: float, number_of_turns: int, radius_of_coils: float) -> None:
         '''
-        want to take the inputs for current through the coils, number of turns in the coil
-        and the radius of the coils to calculate what the field should be and then can compare 
-        that to the measured value
+        takes inputs for the current, current uncertainty, the number of turns
+        and the radius of the coils to calculate the theoretical field value
+        and compares to the actual field value produced and measured with
+        a magnetic field probe
+        Args;
+            current (float): current passed into the coils (helmholtz)
+            current_uncertainty (float): uncertainty in measurement of current
+                being passed through the Helmholtz coil
+            number_of_turns (int): the number of turns in the calibration coil
+            radius_of_coils (float): radius of calibration coils
+        Returns:
+            None
         '''
 
-        self.field = (0.8**1.5) * (4*np.pi*(10**(-7))) * (number_of_turns * current) / radius_of_coils
+        theoretical_field = (0.8**1.5) * (4*np.pi*(10**(-7))) * (number_of_turns * current) / radius_of_coils
 
         square = (((current_uncertainty / current)**2) + ((0.5*10**(-3) / radius_of_coils)**2))
-        self.field_uncertainty = np.sqrt(square) * self.field
+        self.field_uncertainty = np.sqrt(square) * theoretical_field
+
+        difference = (np.abs(theoretical_field - self.field))/self.field * 100
+        print(f'the % difference in theoretical and measured field is {difference}%')
 
         self.perform_calibration()
 
-        return self.field
-
     def perform_calibration(self) -> None:
         '''
-        do the calibration and get the sensitivities and the uncertainties in sens
+        finds the value for the sensitivity for each sensor in the array.
+        caluclates the uncertainty assciated with each value as it goes.
+        Args:
+            None
+        Returns:
+            None
         '''
         
         uncertainty_in_sensor = 0.5
@@ -107,7 +167,12 @@ class Sensitivity:
 
     def saves_sens(self) -> None:
         '''
-        docstring
+        saves the values just calculats in a csv file so that they can be used
+        as a scale factor in data conversion
+        Args:
+            None
+        Returns:
+            None
         '''
         path = Path(__file__).parent
         output1 = path/'sens.csv'

@@ -1,13 +1,38 @@
+''' calculates the null voltage, associated uncertainty and the standard deviation of
+each sensor in the array'''
+
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from python_code.read import read_data
+from read import read_data
 
 class Nulls:
     '''
-    ds
+    class for calculating the null voltage, standard deviations and associated uncertainties of each sensor
+    measurements. 
+
+    Attributes:
+        number (int): the number of sensors in the array
+        port (str): the computer port that the array is connected to
+        vcc (float): the value of the VCC of the Arduino
+        filename (str): the name that the data will be stored under
+        vcc_un (float): the associated uncertainty with the reading of the vcc of the Arduino
+        bits (int): the bit depth of the microcontroller
+        samples (int): how many samples are read to get the values for null voltage and standard deviation
+
+    Methods:
+        find_params() -> None: 
+            reads in the data and calculates the standard deviation of each sensor
+            as well as the null voltages
+        find_uncertainties_in_null() -> None:
+            calculates the uncertainty associated with each calculation for null voltage
+            that was just done.
+        save_values() -> None:
+            saves null voltages, uncertainties and standard deviations in csvs so that they can be 
+            accessed for the next calibration step and for data conversion.
     '''
-    def __init__(self, number: int, port: str, vcc: float, filename: str, vcc_un: float, bits: int, samples: int = 400):
+    def __init__(self, number: int, port: str, vcc: float,
+                filename: str, vcc_un: float, bits: int, samples: int = 400):
         self.number = number
         self.port = port
         self.vcc = vcc
@@ -29,16 +54,18 @@ class Nulls:
 
     def find_params(self) -> None:
         '''
-        calculates the null voltage of each sensor and the standrad deviation of each sensor.
-        these values are used in the calculation of the sensitivity of each sensor and in the
-        calculation of the uncertainty of each sensor
+        reads in the data and calculates the standard deviation of each sensor
+        as well as the null voltages
+        Args:
+            None
+        Returns:
+            None
         '''
 
         self.calibration_df = read_data(self.port, self.filename, self.samples)
         self.null_frame = pd.DataFrame(np.zeros((2, self.number)), dtype = float)
         self.null_values = [0]*self.number
         self.stds = [0]*self.number
-        
 
         for i in range(self.number):
             mean_entry = (self.calibration_df[self.calibration_df.columns[i+1]]).mean()
@@ -49,7 +76,11 @@ class Nulls:
 
     def find_uncertainties_in_null(self)-> None:
         '''
-        ds
+        this method calculates the uncertainty in each measurement of the null voltage
+        Args:
+            None
+        Returns:
+            None
         '''
         self.uncertainties_in_null = [0]*self.number
         sensor_uncertainty = 0.5
@@ -65,7 +96,12 @@ class Nulls:
 
     def save_values(self) -> None:
         '''
-        ds
+        this method stores the values of the null voltages and their uncertainties
+        as well as the values of the standard deviation of each sensor.
+        Args:
+            None
+        Returns:
+            None
         '''
         self.null_frame.iloc[0] = self.null_values
         self.null_frame.iloc[1] = self.uncertainties_in_null
