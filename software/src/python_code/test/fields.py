@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from read import read_data
 
-
 class Conversion:
     '''
     class for converting the raw data read from the hall effect sensors and the Arduino into useful data 
@@ -21,8 +20,8 @@ class Conversion:
     
     Methods:
         get_params() -> None: 
-            reads the csv file where the calibration parameters (null voltages/sensitivity/uncertainties) are stored 
-            and saves them as arrays so that they can be used in this class for the conversion
+            reads the csv file where the calibration parameters (null voltages/sensitivity/uncertainties)
+            are stored and saves them as arrays so that they can be used in this class for the conversion
         into_voltage() -> None: 
             multiplies the numbers outputted by the sensors to convert them into voltages,
             and subtracts the null voltage for each sensor off of that sensors readings. Calculates the 
@@ -36,13 +35,15 @@ class Conversion:
             method for running the other methods in the class
     '''
 
-    def __init__(self, port: str, filename: str, number: int, vcc: float, bits: int, samples: int = 200):
+    def __init__(self, port: str, filename: str, number: int, vcc: float, vcc_un: float, bits: int, samples: int = 200):
         self.port = port
         self.filename = filename
         self.number = number
         self.vcc = vcc
+        self.vcc_un = vcc_un
         self.bits = (2**bits)-1
         self.samples = samples
+
         self.nulls = None
         self.sensitivities = None
         self.data = None
@@ -65,18 +66,16 @@ class Conversion:
         Returns:
             None
         '''
-        # right lets get the null voltages in first
 
         self.nulls = np.empty(self.number)
         self.sensitivities = np.empty(self.number)
         self.nulls_uncertainties = np.empty(self.number)
         self.sensitivities_uncertainties = np.empty(self.number)
-
+        self.stds = np.empty(self.number)
 
         nulls_path = Path(__file__).resolve().with_name('nulls.csv')
         nulls_and_uncertainties = pd.read_csv(nulls_path)
         self.nulls = nulls_and_uncertainties.iloc[0].to_numpy()
-        print(self.nulls)
         self.nulls_uncertainties = nulls_and_uncertainties.iloc[1].to_numpy()
 
         sens_path = Path(__file__).resolve().with_name('sens.csv')
@@ -84,16 +83,14 @@ class Conversion:
         for i in range(self.number):
             self.sensitivities[i] = sens_df[sens_df.columns[i]].mean()
 
-        # should be taking an average of the values for each sensor (if use three calib
-        # fields there should be 3 values being averaged)
-
         sens_uncertainties_path = Path(__file__).resolve().with_name('uncertainties.csv')
         uncertainties_df = pd.read_csv(sens_uncertainties_path)
         for i in range(self.number):
             self.sensitivities_uncertainties[i] = uncertainties_df[uncertainties_df.columns[i]].mean()
 
-        std_path = Path(__file__).resolve().with_name('std.csv')
-        self.stds = pd.read_csv(std_path)
+        std_path = Path(__file__).resolve().with_name('stds.csv')
+        std_df = pd.read_csv(std_path)
+        self.stds = std_df.iloc[0]
 
 
     def into_voltage(self) -> None:
@@ -105,26 +102,28 @@ class Conversion:
             None
         Returns:
             None
-        '''
+        ''' 
 
         self.data = read_data(self.port, self.filename, self.samples)
+
         self.voltage_uncertainty = [0] * self.number
 
         for i in range(self.number):
-            self.sensor_uncertainty = np.sqrt(0.25 + self.stds.iloc[i, 0])
-            average_reading = self.data[self.data.columns[i+1]].mean()
+            self.sensor_uncertainty = np.sqrt(0.25 + self.stds.iloc[i])
+            if i <= 7:
+                average_reading = self.data[self.data.columns[i+1]].mean()
 
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / self.bits
+                self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * self.vcc / self.bits
 
-            average_voltage_1 = self.data[self.data.columns[i+1]].mean()
-            readings = self.sensor_uncertainty / average_reading
-            vcc = 0.05 / 5.0
-            rooted = np.sqrt((readings)**2 + (vcc)**2)
-            v1_uncertainty = average_voltage_1 * rooted
+                average_voltage_1 = self.data[self.data.columns[i+1]].mean()
+                readings = self.sensor_uncertainty / average_reading
+                vcc = self.vcc_un / self.vcc
+                rooted = np.sqrt((readings)**2 + (vcc)**2)
+                v1_uncertainty = average_voltage_1 * rooted
 
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] - self.nulls[i]
+                self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]]-self.nulls[i]
 
-            self.voltage_uncertainty[i] = np.sqrt((self.nulls_uncertainties[i])**2 + (v1_uncertainty)**2)
+                self.voltage_uncertainty[i] = np.sqrt((self.nulls_uncertainties[i])**2 + (v1_uncertainty)**2)
 
     def field_strengths(self) -> pd.DataFrame:
         '''
@@ -144,20 +143,18 @@ class Conversion:
 
             voltage = (self.voltage_uncertainty[i]/self.data[self.data.columns[i+1]].mean())**2
 
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] / (self.sensitivities[i] / 1000)
-            self.data[self.data.columns[i+1]] = self.data[self.data.columns[i+1]] * 1000
+            self.data[self.data.columns[i+1]] = (self.data[self.data.columns[i+1]]/(self.sensitivities[i]/1000))*1000
 
             sensitivity = (self.sensitivities_uncertainties[i]/self.sensitivities.mean())**2
-            self.field_uncertainty[i] =  np.sqrt((sensitivity + voltage))
-    
-            if i == 0:
-                self.data.rename(columns={self.data.columns[0]: 'time/s'}, inplace = True)
+            self.field_uncertainty[i] = np.sqrt((sensitivity+voltage))
 
-            self.data.rename(columns={self.data.columns[i+1]:f'field_strength_S{i+1}/mT'}, inplace = True)
+        new_names = ['time/s']
+        new_names.extend([f'field_strength_S{i}/mT' for i in range(1, self.number + 1)])
+        self.data.columns = new_names
 
         self.data[self.data.columns[0]] = self.data[self.data.columns[0]].astype(float)
 
-        self.data['time/s'] = self.data['time/s'] / 1000
+        self.data['time/s'] = self.data['time/s']/1000
 
         return self.data
 
@@ -181,7 +178,6 @@ class Conversion:
             field_display[column] = field_display[column].apply(lambda x: f'{x:.3f} ± {abs(x*relative_uncertainties):.3f}')
 
         print(field_display)
-
 
     def run(self):
         '''
