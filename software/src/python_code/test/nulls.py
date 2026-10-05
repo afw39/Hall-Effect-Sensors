@@ -35,13 +35,14 @@ class Nulls:
         '''
 
         self.calibration_df = read_data(self.port, self.filename, self.samples)
-        self.null_frame = pd.DataFrame(np.zeros(2, self.number), dtype = float)
+        self.null_frame = pd.DataFrame(np.zeros((2, self.number)), dtype = float)
         self.null_values = [0]*self.number
         self.stds = [0]*self.number
         
 
         for i in range(self.number):
-            self.null_values[i] = (self.calibration_df[self.calibration_df.columns[i+1]]*self.vcc/self.levels).mean()
+            mean_entry = (self.calibration_df[self.calibration_df.columns[i+1]]).mean()
+            self.null_values[i] = mean_entry * self.vcc / self.levels
             self.stds[i] = (self.calibration_df[self.calibration_df.columns[i+1]]).std(ddof=1)
 
         self.find_uncertainties_in_null()
@@ -69,7 +70,7 @@ class Nulls:
         self.null_frame.iloc[0] = self.null_values
         self.null_frame.iloc[1] = self.uncertainties_in_null
 
-        self.std_frame = pd.DataFrame(np.zeros(1, self.number), dtype = float)
+        self.std_frame = pd.DataFrame(np.zeros((1, self.number)), dtype = float)
         self.std_frame.iloc[0] = self.stds
 
         file_dir = (Path(__file__).parent)

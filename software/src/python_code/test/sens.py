@@ -85,7 +85,7 @@ class Sensitivity:
         for x in range(self.number):
         
             average_sen_data = uncertainty_sen_frame[uncertainty_sen_frame.columns[x+1]].mean()
-            reading_uncertainty = ((np.sqrt(((uncertainty_in_sensor)**2)+(self.stds[x])**2))/average_sen_data[x])**2
+            reading_uncertainty = ((np.sqrt(((uncertainty_in_sensor)**2)+(self.stds[x])**2))/average_sen_data)**2
             rooted = np.sqrt(reading_uncertainty+vcc_uncertainty)
         
             average_voltage_value = (self.calibration_data[self.calibration_data.columns[x+1]]*self.vcc/self.bits).mean()
