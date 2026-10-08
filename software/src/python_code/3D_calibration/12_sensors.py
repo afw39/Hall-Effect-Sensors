@@ -155,7 +155,7 @@ class Calib_3D:
 
                 average_count = self.data2[self.data2.columns[(3*i)+x+1]].mean()
                 count_uncertainty = ((np.sqrt(((sensor_uncertainty)**2)+(self.stds[(3*i)+x])**2))/average_count)**2
-                average_voltage = (self.dat2[self.data2.columns[(3*i)+x+1]]*self.vcc / self.bits).mean()
+                average_voltage = (self.data2[self.data2.columns[(3*i)+x+1]]*self.vcc / self.bits).mean()
                 uncertainty_in_voltage = average_voltage*(np.sqrt(count_uncertainty+vcc_uncertainty))
                 uncertainty_in_voltage_nulls = (np.sqrt(((uncertainty_in_voltage)**2)+((self.nulls_uncertainties[(3*i)+x])**2)))
                 self.data2[self.data2.columns[(3*i)+1+x]] = self.data2[self.data2.columns[(3*i)+1+x]]-self.nulls[(3*i)+x]
@@ -235,7 +235,7 @@ class Convert_3D:
         self.nulls_uncertainty = None
         self.stds = None
 
-        self.get_params()      
+        self.get_params()     
 
     def get_params(self) -> None:
         '''
@@ -306,14 +306,3 @@ class Convert_3D:
         # okay now i think i have all of them! hopefully all still in the same order...
 
         self.data = read_data(self.port, self.filename, self.samples)
-
-    
-
-        
-
-               
-
-
-
-
-
