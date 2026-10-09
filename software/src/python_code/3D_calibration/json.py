@@ -33,4 +33,6 @@ for sensor in sensor_data['sensors']:
         # if its the ith column and the number is i:
             if sensor_data["direction"] == "x":
                 # append this column to the x data frame?
+        if i == sensor_data['number']:
+            
 
