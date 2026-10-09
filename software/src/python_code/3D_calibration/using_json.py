@@ -10,4 +10,3 @@ with open(output_json, encoding = 'utf-8') as f:
 for sensor in sensor_data['sensors']:
     if sensor_data["direction"] == 'x':
         # calibrate x sensor idk
-
