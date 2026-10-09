@@ -96,7 +96,7 @@ class Sensitivity:
         self.nulls_uncertainties = parameters_df.iloc[1].to_numpy()
         self.stds = stds_df.iloc[0].to_numpy()
 
-    def current_comparison(self, current: float, current_uncertainty: float, number_of_turns: int, radius_of_coils: float) -> None:
+    def current_comparison(self, current: float, current_uncertainty: float, number_of_turns: int, coil_radius: float) -> None:
         '''
         takes inputs for the current, current uncertainty, the number of turns
         and the radius of the coils to calculate the theoretical field value
@@ -107,17 +107,17 @@ class Sensitivity:
             current_uncertainty (float): uncertainty in measurement of current
                 being passed through the Helmholtz coil
             number_of_turns (int): the number of turns in the calibration coil
-            radius_of_coils (float): radius of calibration coils
+            coil_radius (float): radius of calibration coils
         Returns:
             None
         '''
 
-        theoretical_field = (0.8**1.5) * (4*np.pi*(10**(-7))) * (number_of_turns * current) / radius_of_coils
+        theoretical_field = (0.8**1.5)*(4*np.pi*(10**(-7)))*(number_of_turns*current)/coil_radius
 
-        square = (((current_uncertainty / current)**2) + ((0.5*10**(-3) / radius_of_coils)**2))
-        self.field_uncertainty = np.sqrt(square) * theoretical_field
+        square = (((current_uncertainty/current)**2)+((0.5*10**(-3)/coil_radius)**2))
+        self.field_uncertainty = np.sqrt(square)                  *theoretical_field
 
-        difference = (np.abs(theoretical_field - self.field))/self.field * 100
+        difference = (np.abs(theoretical_field-self.field))/self.field*100
         print(f'the % difference in theoretical and measured field is {difference}%')
 
         self.perform_calibration()
@@ -137,8 +137,8 @@ class Sensitivity:
         self.calibration_data = read_data(self.port, self.filename, self.samples)
         uncertainty_sen_frame = self.calibration_data
         
-        self.sensitivities = [0] * self.number
-        self.uncertainty_in_sens = [0] * self.number
+        self.sensitivities = [0]*self.number
+        self.uncertainty_in_sens = [0]*self.number
         
         vcc_uncertainty = (self.vcc_uncertainty/self.vcc)**2
 

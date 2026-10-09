@@ -1,10 +1,11 @@
-'''runs the calibration software, can be run as many times as there are clibartion fields (more testing
-is better resuts)'''
+'''runs the calibration software, can be run as many times as there are clibartion fields (
+more testing is better resuts)'''
 
 from sens import Sensitivity
 
-x = Sensitivity(number = 8, port = '/dev/ttyUSB0', vcc = 5, vcc_un = 0.05,
-                filename = 'calibration.csv', bits = 10, samples = 400, calibration_field = 0.01,
+x = Sensitivity(number = 6, port = '/dev/ttyUSB0', vcc = 5, vcc_un = 0.05,
+                filename = 'calibration_4_repeat_A.csv', bits = 10, samples = 400, calibration_field = 283*10**-3,
                 field_uncertainty = 0.005)
 
-x.current_comparison(current=4, current_uncertainty=0.05, number_of_turns=50, radius_of_coils=1)
+#x.current_comparison(current=, current_uncertainty=, number_of_turns=, coil_radius=)
+x.perform_calibration()
