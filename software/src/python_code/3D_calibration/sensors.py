@@ -2,11 +2,12 @@
 # can test this using 6 sensors first. This method only works because i know the order of directions that the data is in,
 # which won't always be the same, so need the config file to specify what order the data is coming in as
 
+'''code kind of ish works - needs to be fixed but not completely hopeless'''
+
 # imports
 from pathlib import Path
 from csv import writer
 import numpy as np
-from numpy import mean
 import pandas as pd
 from read import read_data
 
